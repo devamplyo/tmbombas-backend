@@ -18,12 +18,22 @@ public class ImageStoreService {
 
     private final S3Client s3Client;
     private final String bucketName;
+    private final String publicUrl;
 
-    public ImageStoreService(S3Client s3Client, @Value("${CLOUDFLARE_R2_BUCKET_NAME}") String bucketName) {
+    public ImageStoreService(S3Client s3Client,
+                              @Value("${CLOUDFLARE_R2_BUCKET_NAME}") String bucketName,
+                              @Value("${CLOUDFLARE_R2_PUBLIC_URL:}") String publicUrl) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
+        // normalize so it always ends with exactly one "/"
+        this.publicUrl = publicUrl.isBlank() ? "" : publicUrl.replaceAll("/+$", "") + "/";
     }
 
+    /**
+     * Uploads the file to the bucket and returns the full public URL,
+     * built from CLOUDFLARE_R2_PUBLIC_URL (not the bucket/S3 endpoint,
+     * which isn't publicly readable).
+     */
     public String uploadImage(MultipartFile file) throws IOException {
         String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -33,7 +43,7 @@ public class ImageStoreService {
                 .build();
         s3Client.putObject(putObjectRequest,
                 RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-        return fileName;
+        return publicUrl + fileName;
     }
 
     // unused for now
@@ -41,9 +51,8 @@ public class ImageStoreService {
         if (fileNames == null || fileNames.isEmpty()) {
             return;
         }
-        String prefix = "https://cdn.carldev.online/th-piscinas/";
         List<ObjectIdentifier> keysToProcess = fileNames.stream().map(url -> {
-            String cleanedKey = url.replace(prefix, "");
+            String cleanedKey = url.replace(publicUrl, "");
             return ObjectIdentifier.builder().key(cleanedKey).build();
         }).toList();
         Delete delete = Delete.builder().objects(keysToProcess).build();

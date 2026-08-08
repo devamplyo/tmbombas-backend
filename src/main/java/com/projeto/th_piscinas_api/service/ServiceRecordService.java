@@ -59,8 +59,7 @@ public class ServiceRecordService {
                 throw new RuntimeException("Máximo de 6 fotos permitido");
             }
             for (MultipartFile file : photos) {
-                String url = "https://cdn.carldev.online/th-piscinas/"
-                        + imageStoreService.uploadImage(file);
+                String url = imageStoreService.uploadImage(file);
 
                 record.addPhoto(ServiceRecordPhoto.builder()
                         .url(url)
