@@ -1,0 +1,23 @@
+package com.projeto.th_piscinas_api.dto.sale;
+
+
+import com.projeto.th_piscinas_api.util.SaleStatus;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record CancelSaleResponse(
+        Long id,
+        String customerName,
+        String sellerName,
+        BigDecimal total,
+        LocalDateTime createdAt,
+        List<SaleItemResponse> items,
+        SaleStatus status,
+        LocalDateTime cancelledAt,
+        String cancellationReason,
+        Long authorizedByAdminId
+
+) {
+}

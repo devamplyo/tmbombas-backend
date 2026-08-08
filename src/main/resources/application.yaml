@@ -1,0 +1,135 @@
+spring:
+  config:
+    import: "optional:file:./.env[.properties]"
+  application:
+    name: th-piscinas-api
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:file:./data/th_piscinas;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Defaults only for the dev profile — allow running locally without exporting
+# variables. In prod, JWT_SECRET is injected via the environment (docker-compose).
+JWT_SECRET: dev-only-secret-change-me-please-0123456789abcdef
+JWT_EXPIRATION_MINUTES: 120
+
+# Initial ADM Master created on first start (dev profile). In prod it comes from the environment.
+ADMIN_MATRICULA: admin
+ADMIN_SENHA: admin123
+ADMIN_NOME: Administrador Dev
+
+nfse:
+  simulate: ${NFSE_SIMULATE:true}
+  producao-confirmada: ${NFSE_PRODUCAO_CONFIRMADA:false}
+  token: ${FOCUSNFE_TOKEN:}
+  ambiente: ${FOCUSNFE_AMBIENTE:homologacao}
+  cnpj-prestador: ${NFSE_CNPJ_PRESTADOR:}
+  inscricao-municipal: ${NFSE_INSCRICAO_MUNICIPAL:}
+  codigo-municipio: ${NFSE_CODIGO_MUNICIPIO:2611606}
+  razao-social: ${NFSE_RAZAO_SOCIAL:TH Bombas}
+  email-prestador: ${NFSE_EMAIL_PRESTADOR:}
+  codigo-tributacao-nacional: ${NFSE_CODIGO_TRIBUTACAO_NACIONAL:}
+  codigo-tributacao-municipal: ${NFSE_CODIGO_TRIBUTACAO_MUNICIPAL:}
+  aliquota: ${NFSE_ALIQUOTA:5.00}
+  codigo-opcao-simples-nacional: ${NFSE_CODIGO_OPCAO_SIMPLES_NACIONAL:1}
+  regime-especial-tributacao: ${NFSE_REGIME_ESPECIAL_TRIBUTACAO:0}
+  tributacao-iss: ${NFSE_TRIBUTACAO_ISS:1}
+  tipo-retencao-iss: ${NFSE_TIPO_RETENCAO_ISS:1}
+  percentual-tributos-federais: ${NFSE_PERCENTUAL_TRIBUTOS_FEDERAIS:0.00}
+  percentual-tributos-estaduais: ${NFSE_PERCENTUAL_TRIBUTOS_ESTADUAIS:0.00}
+  percentual-tributos-municipais: ${NFSE_PERCENTUAL_TRIBUTOS_MUNICIPAIS:0.00}
+  percentual-tributos-simples-nacional: ${NFSE_PERCENTUAL_TRIBUTOS_SIMPLES_NACIONAL:}
+  serie-dps: ${NFSE_SERIE_DPS:1}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+nfse:
+  simulate: ${NFSE_SIMULATE:true}
+  producao-confirmada: ${NFSE_PRODUCAO_CONFIRMADA:false}
+  token: ${FOCUSNFE_TOKEN:}
+  ambiente: ${FOCUSNFE_AMBIENTE:producao}
+  cnpj-prestador: ${NFSE_CNPJ_PRESTADOR:}
+  inscricao-municipal: ${NFSE_INSCRICAO_MUNICIPAL:}
+  codigo-municipio: ${NFSE_CODIGO_MUNICIPIO:}
+  razao-social: ${NFSE_RAZAO_SOCIAL:TH Bombas}
+  email-prestador: ${NFSE_EMAIL_PRESTADOR:}
+  codigo-tributacao-nacional: ${NFSE_CODIGO_TRIBUTACAO_NACIONAL:}
+  codigo-tributacao-municipal: ${NFSE_CODIGO_TRIBUTACAO_MUNICIPAL:}
+  aliquota: ${NFSE_ALIQUOTA:5.00}
+  codigo-opcao-simples-nacional: ${NFSE_CODIGO_OPCAO_SIMPLES_NACIONAL:1}
+  regime-especial-tributacao: ${NFSE_REGIME_ESPECIAL_TRIBUTACAO:0}
+  tributacao-iss: ${NFSE_TRIBUTACAO_ISS:1}
+  tipo-retencao-iss: ${NFSE_TIPO_RETENCAO_ISS:1}
+  percentual-tributos-federais: ${NFSE_PERCENTUAL_TRIBUTOS_FEDERAIS:0.00}
+  percentual-tributos-estaduais: ${NFSE_PERCENTUAL_TRIBUTOS_ESTADUAIS:0.00}
+  percentual-tributos-municipais: ${NFSE_PERCENTUAL_TRIBUTOS_MUNICIPAIS:0.00}
+  percentual-tributos-simples-nacional: ${NFSE_PERCENTUAL_TRIBUTOS_SIMPLES_NACIONAL:}
+  serie-dps: ${NFSE_SERIE_DPS:1}
+
+---
+
+spring:
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+app:
+  jwt:
+    refresh-expiration-days: ${JWT_REFRESH_DAYS:7}
+
+---
+
+app:
+  storage:
+    location: /data/uploads   # monte um volume do Docker aqui
+    base-url: /files
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB

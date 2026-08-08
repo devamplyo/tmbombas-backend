@@ -1,0 +1,96 @@
+services:
+
+  th_piscinas_database:
+    image: postgres:16
+    container_name: th_piscinas_database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: th_piscinas_database
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5015:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d th_piscinas_database"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  th_piscinas_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: th_piscinas_api
+    restart: unless-stopped
+    depends_on:
+      th_piscinas_database:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://th_piscinas_database:5432/th_piscinas_database
+      DATABASE_USERNAME: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SERVER_PORT: 4015
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE: UTC
+      ADMIN_MATRICULA: ${ADMIN_MATRICULA}
+      ADMIN_SENHA: ${ADMIN_SENHA}
+      ADMIN_NOME: ${ADMIN_NOME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES}
+      SPRING_JACKSON_PROPERTY_NAMING_STRATEGY: "SNAKE_CASE"
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      CLOUDFLARE_R2_ENDPOINT: ${R2_ENDPOINT}
+      CLOUDFLARE_R2_ACCESS_KEY: ${R2_ACCESS_KEY}
+      CLOUDFLARE_R2_SECRET_KEY: ${R2_SECRET_KEY}
+      CLOUDFLARE_R2_BUCKET_NAME: alerta-recife
+      CLOUDFLARE_R2_PUBLIC_URL: https://cdn.carldev.online
+      FOCUSNFE_TOKEN: ${FOCUSNFE_TOKEN:-}
+      FOCUSNFE_AMBIENTE: ${FOCUSNFE_AMBIENTE:-homologacao}
+      NFSE_SIMULATE: ${NFSE_SIMULATE:-true}
+      NFSE_PRODUCAO_CONFIRMADA: ${NFSE_PRODUCAO_CONFIRMADA:-false}
+      NFSE_CNPJ_PRESTADOR: ${NFSE_CNPJ_PRESTADOR:-}
+      NFSE_INSCRICAO_MUNICIPAL: ${NFSE_INSCRICAO_MUNICIPAL:-}
+      NFSE_CODIGO_MUNICIPIO: ${NFSE_CODIGO_MUNICIPIO:-2611606}
+      NFSE_RAZAO_SOCIAL: ${NFSE_RAZAO_SOCIAL:-TH Bombas}
+      NFSE_EMAIL_PRESTADOR: ${NFSE_EMAIL_PRESTADOR:-}
+      NFSE_CODIGO_TRIBUTACAO_NACIONAL: ${NFSE_CODIGO_TRIBUTACAO_NACIONAL:-}
+      NFSE_CODIGO_TRIBUTACAO_MUNICIPAL: ${NFSE_CODIGO_TRIBUTACAO_MUNICIPAL:-}
+      NFSE_ALIQUOTA: ${NFSE_ALIQUOTA:-5.00}
+      NFSE_CODIGO_OPCAO_SIMPLES_NACIONAL: ${NFSE_CODIGO_OPCAO_SIMPLES_NACIONAL:-1}
+      NFSE_REGIME_ESPECIAL_TRIBUTACAO: ${NFSE_REGIME_ESPECIAL_TRIBUTACAO:-0}
+      NFSE_TRIBUTACAO_ISS: ${NFSE_TRIBUTACAO_ISS:-1}
+      NFSE_TIPO_RETENCAO_ISS: ${NFSE_TIPO_RETENCAO_ISS:-1}
+      NFSE_PERCENTUAL_TRIBUTOS_FEDERAIS: ${NFSE_PERCENTUAL_TRIBUTOS_FEDERAIS:-0.00}
+      NFSE_PERCENTUAL_TRIBUTOS_ESTADUAIS: ${NFSE_PERCENTUAL_TRIBUTOS_ESTADUAIS:-0.00}
+      NFSE_PERCENTUAL_TRIBUTOS_MUNICIPAIS: ${NFSE_PERCENTUAL_TRIBUTOS_MUNICIPAIS:-0.00}
+      NFSE_PERCENTUAL_TRIBUTOS_SIMPLES_NACIONAL: ${NFSE_PERCENTUAL_TRIBUTOS_SIMPLES_NACIONAL:-}
+      NFSE_SERIE_DPS: ${NFSE_SERIE_DPS:-1}
+    ports:
+      - "4015:4015"
+    volumes:
+      - uploads_data:/data/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/auth/me/ping || true"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+
+volumes:
+  postgres_data:
+  redis_data: {}
+  uploads_data: {}
