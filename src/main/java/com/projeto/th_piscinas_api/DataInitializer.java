@@ -44,20 +44,6 @@ public class DataInitializer implements CommandLineRunner {
         seedDev("vint", "Vendedor Interno Dev", Perfil.VENDEDOR_INTERNO);
         seedDev("vext", "Vendedor Externo Dev", Perfil.VENDEDOR_EXTERNO);
         seedDev("tec",  "Tecnico Dev",          Perfil.TECNICO_CONDOMINIAL);
-
-        if (!productRepository.existsByCode("BOMB-001")) {
-            Product p = new Product();
-            p.setName("Bomba d'água 1CV");
-            p.setCode("BOMB-001");
-            p.setManufacturer("TH Bombas");
-            p.setPrice(new java.math.BigDecimal("1250.00"));
-            p.setStock(10);
-            p.setCategory(ProductCategory.PUMP);
-            p.setPowerHp(1.0);
-            p.setActive(true);
-            productRepository.save(p);
-            log.info("Produto de exemplo criado: BOMB-001");
-        }
     }
 
     private void seedDev(String mat, String nomeUser, Perfil perfil) {
