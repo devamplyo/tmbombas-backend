@@ -37,6 +37,7 @@ public class TechnicianService {
     private final TechnicianMapper technicianMapper;
     private final ClientRepository clientRepository;
     private final ServiceOrderMapper serviceOrderMapper;
+    private final ReceivableService receivableService;
 
     /**
      * The technician's own history (scoped to the logged-in user).
@@ -156,7 +157,12 @@ public class TechnicianService {
 
         order.setCompletedAt(LocalDateTime.now());
         order.setStatus(ServiceOrderStatus.CONCLUIDA);
-        return serviceOrderMapper.toResponse(serviceOrderRepository.save(order));
+        ServiceOrder saved = serviceOrderRepository.save(order);
+
+        // Same rule as the admin path: completed order opens the receivable.
+        receivableService.createForServiceOrder(saved);
+
+        return serviceOrderMapper.toResponse(saved);
     }
 
     /**

@@ -8,6 +8,7 @@ import com.projeto.th_piscinas_api.model.FinancialLaunch;
 import com.projeto.th_piscinas_api.model.Receivable;
 import com.projeto.th_piscinas_api.repository.ReceivableRepository;
 import com.projeto.th_piscinas_api.model.Sale;
+import com.projeto.th_piscinas_api.model.ServiceOrder;
 import com.projeto.th_piscinas_api.repository.FinancialLaunchRepository;
 import com.projeto.th_piscinas_api.util.*;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +83,43 @@ public class ReceivableService {
             confirm(r, method != null ? method : PaymentMethod.DINHEIRO, LocalDate.now());
         }
         return r;
+    }
+
+
+    /**
+     * Opens the receivable for a service order that has just been completed.
+     *
+     * <p>Idempotent: an order whose status goes back and forth doesn't generate a
+     * second entry. An order with no value has nothing to receive and is skipped —
+     * {@code amount} is NOT NULL in the table.</p>
+     */
+    @Transactional
+    public void createForServiceOrder(ServiceOrder order) {
+        if (order.getPrice() == null || order.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+        if (receivableRepository.findBySourceTypeAndSourceId(
+                ReceivableSource.ORDEM_SERVICO, order.getId()).isPresent()) {
+            return;
+        }
+
+        String descricao = order.getOrderNumber();
+        if (order.getTitle() != null && !order.getTitle().isBlank()) {
+            descricao = descricao + " — " + order.getTitle();
+        }
+        if (descricao.length() > 255) {
+            descricao = descricao.substring(0, 255);
+        }
+
+        receivableRepository.save(Receivable.builder()
+                .sourceType(ReceivableSource.ORDEM_SERVICO)
+                .sourceId(order.getId())
+                .clientName(order.getClient() == null ? null : order.getClient().getName())
+                .description(descricao)
+                .amount(order.getPrice())
+                .dueDate(LocalDate.now())
+                .status(ReceivableStatus.PENDENTE)
+                .build());
     }
 
 
