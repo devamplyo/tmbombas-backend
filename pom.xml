@@ -37,6 +37,17 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!--
+			Actuator: o healthcheck do docker-compose bate em /actuator/health.
+			Sem esta dependência o endpoint não existe, devolve 404 e o container
+			fica eternamente "unhealthy" mesmo com a aplicação no ar.
+			O compose já restringe a exposição a "health", sem detalhes.
+		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 		<!-- PostgreSQL database -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
