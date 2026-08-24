@@ -103,16 +103,6 @@ já traz valores padrão para `JWT_SECRET`, `JWT_EXPIRATION_MINUTES` e o usuári
 administrador inicial (`admin` / `admin123`), então sobe sem nenhuma configuração
 extra. Para personalizar o ADM inicial, exporte antes do primeiro start:
 
-```bash
-export ADMIN_MATRICULA="seu-usuario"
-export ADMIN_SENHA="sua-senha"
-export ADMIN_NOME="Nome do ADM"
-```
-
-> No primeiro start, um usuário `ADM_MASTER` é criado automaticamente. **Troque a senha no primeiro acesso.**
-> Os defaults do perfil `dev` são apenas para desenvolvimento — em produção todas
-> essas variáveis (inclusive `JWT_SECRET`) devem vir do ambiente.
-
 ### Variáveis de produção (perfil `prod`)
 
 ```bash

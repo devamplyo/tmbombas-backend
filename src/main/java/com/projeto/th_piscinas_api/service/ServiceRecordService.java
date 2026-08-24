@@ -30,7 +30,7 @@ public class ServiceRecordService {
     @Transactional
     public ServiceRecordResponse addRecord(Long orderId, String note,
                                            List<MultipartFile> photos, User technician)
-            throws IOException, IOException {
+            throws IOException {
 
         ServiceOrder order = serviceOrderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(

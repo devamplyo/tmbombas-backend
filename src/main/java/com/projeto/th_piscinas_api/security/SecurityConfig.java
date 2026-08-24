@@ -28,7 +28,8 @@ public class SecurityConfig {
                 .sessionManagement(sm ->
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/refresh")
+                        .permitAll()
                         .requestMatchers( "/api/auth/logout", "/api/auth/me")
                                 .authenticated()
                         .requestMatchers("/api/products/**").authenticated()
@@ -37,9 +38,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/clients/**").authenticated()
                         .requestMatchers("/api/sales/**").authenticated()
                         .requestMatchers("/actuator/health", "/error").permitAll()
-                        // used to be a single pattern with a comma inside (never matched); now split up
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
-                                .permitAll()
                         .requestMatchers("/api/users/**").hasRole("ADM_MASTER")
                         .requestMatchers("/api/admin/maintenance-plans/**")
                         .hasAnyRole("ADM_MASTER", "VENDEDOR_INTERNO")

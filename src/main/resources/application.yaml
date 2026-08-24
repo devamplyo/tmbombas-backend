@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: "optional:file:./.env[.properties]"
   application:
     name: th-piscinas-api
   profiles:
@@ -46,9 +44,6 @@ JWT_SECRET: dev-only-secret-change-me-please-0123456789abcdef
 JWT_EXPIRATION_MINUTES: 120
 
 # Initial ADM Master created on first start (dev profile). In prod it comes from the environment.
-ADMIN_MATRICULA: admin
-ADMIN_SENHA: admin123
-ADMIN_NOME: Administrador Dev
 
 nfse:
   simulate: ${NFSE_SIMULATE:true}
@@ -80,7 +75,7 @@ spring:
       on-profile: prod
   datasource:
     url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
+    username: ${DATABASE_USER}
     password: ${DATABASE_PASSWORD}
   jpa:
     hibernate:
@@ -133,3 +128,9 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 20MB
+
+
+---
+
+management.endpoints.web.exposure.include=health
+management.endpoint.health.show-details=never
