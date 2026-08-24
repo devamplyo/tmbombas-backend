@@ -13,7 +13,7 @@ services:
     ports:
       - "5015:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d th_piscinas_database"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d th_piscinas_database" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,9 +36,6 @@ services:
       SERVER_PORT: 4015
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE: UTC
-      ADMIN_MATRICULA: ${ADMIN_MATRICULA}
-      ADMIN_SENHA: ${ADMIN_SENHA}
-      ADMIN_NOME: ${ADMIN_NOME}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES}
       SPRING_JACKSON_PROPERTY_NAMING_STRATEGY: "SNAKE_CASE"
@@ -75,7 +72,7 @@ services:
     volumes:
       - uploads_data:/data/uploads
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/api/auth/me/ping || true"]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:4000/api/auth/me/ping || true" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -92,5 +89,5 @@ services:
 
 volumes:
   postgres_data:
-  redis_data: {}
-  uploads_data: {}
+  redis_data: { }
+  uploads_data: { }
