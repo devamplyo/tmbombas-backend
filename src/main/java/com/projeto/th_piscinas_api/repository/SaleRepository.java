@@ -1,6 +1,7 @@
 package com.projeto.th_piscinas_api.repository;
 
 import com.projeto.th_piscinas_api.model.Sale;
+import com.projeto.th_piscinas_api.util.SaleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,9 @@ import java.util.List;
 
 public interface SaleRepository extends JpaRepository<Sale, Long> {
 
+    // achado F20: nenhuma dessas consultas excluía vendas CANCELADA —
+    // "Vendas"/"Receita gerada" de um colaborador contavam venda estornada
+    // como se fosse normal, tanto na contagem quanto no valor.
     @Query("""
         SELECT s.sellerId AS sellerId,
                COUNT(s)   AS salesCount,
@@ -17,6 +21,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                MAX(s.createdAt) AS lastSale
         FROM Sale s
         WHERE s.sellerId IS NOT NULL
+          AND s.status = com.projeto.th_piscinas_api.util.SaleStatus.ATIVA
         GROUP BY s.sellerId
         """)
     List<SellerStatsProjection> aggregateBySeller();
@@ -30,11 +35,12 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
         FROM Sale s
         WHERE s.sellerId IN :sellerIds
           AND s.createdAt BETWEEN :from AND :to
+          AND s.status = com.projeto.th_piscinas_api.util.SaleStatus.ATIVA
         GROUP BY s.sellerId
         """)
     List<ExternalSellerStatsProjection> aggregateBySellers(@Param("sellerIds") List<Long> sellerIds,
                                                            @Param("from") LocalDateTime from,
                                                            @Param("to") LocalDateTime to);
 
-    List<Sale> findBySellerIdOrderByCreatedAtDesc(Long sellerId);
+    List<Sale> findBySellerIdAndStatusOrderByCreatedAtDesc(Long sellerId, SaleStatus status);
 }

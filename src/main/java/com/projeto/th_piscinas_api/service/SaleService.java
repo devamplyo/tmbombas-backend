@@ -62,6 +62,7 @@ public class SaleService {
                 .customerName(req.customerName())
                 .sellerId(seller != null ? seller.getId() : null)
                 .sellerName(seller != null ? seller.getNome() : null)
+                .paymentMethod(req.paymentMethod())
                 .total(BigDecimal.ZERO)
                 .build();
 
@@ -78,7 +79,11 @@ public class SaleService {
             }
             product.setStock(product.getStock() - itemReq.quantity());
 
-            BigDecimal unitPrice = product.getPrice();
+            // achado F19: honra o preço já cotado (ex.: pedido do Vendedor
+            // Externo, aprovado dias depois) em vez de buscar o preço atual
+            // do produto de novo — o total que o ADM aprovou não pode
+            // divergir do que efetivamente vira venda.
+            BigDecimal unitPrice = itemReq.unitPrice() != null ? itemReq.unitPrice() : product.getPrice();
             BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(itemReq.quantity()));
             total = total.add(subtotal);
 

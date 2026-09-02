@@ -1,6 +1,7 @@
 package com.projeto.th_piscinas_api.dto.sale;
 
 
+import com.projeto.th_piscinas_api.util.PaymentMethod;
 import com.projeto.th_piscinas_api.util.SaleStatus;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ public record SaleResponse(
         BigDecimal total,
         LocalDateTime createdAt,
         SaleStatus status,
+        PaymentMethod paymentMethod,
         List<SaleItemResponse> items
 ) {
 }

@@ -105,6 +105,18 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    // achado F5: só existia o caminho de desativar — sem como reverter pela API.
+    @Transactional
+    public void activateProduct(Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Produto não encontrado: " + id));
+
+        product.setActive(true);
+
+        productRepository.save(product);
+    }
+
 
 
 }

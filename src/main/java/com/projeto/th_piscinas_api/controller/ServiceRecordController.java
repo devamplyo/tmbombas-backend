@@ -36,9 +36,10 @@ public class ServiceRecordController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ServiceRecordResponse>> list(@PathVariable Long id) {
+    public ResponseEntity<List<ServiceRecordResponse>> list(@PathVariable Long id,
+                                                            @AuthenticationPrincipal User caller) {
 
-        List<ServiceRecordResponse> response = serviceRecordService.listByOrder(id);
+        List<ServiceRecordResponse> response = serviceRecordService.listByOrder(id, caller);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
