@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.model;
 
+import com.projeto.th_piscinas_api.util.PaymentMethod;
 import com.projeto.th_piscinas_api.util.SaleStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,6 +35,11 @@ public class Sale {
 
     /** Links the sale to the generated financial entry, to reverse it on cancellation. */
     private Long financialLaunchId;
+
+    /** How the customer paid (achado F3) — informational, echoed back to the UI. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod;
 
     @Builder.Default
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)

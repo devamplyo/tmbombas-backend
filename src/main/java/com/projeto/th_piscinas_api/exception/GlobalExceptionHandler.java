@@ -169,17 +169,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ClientNotPendingException.class)
     public ResponseEntity<ErrorResponseDTO> handleClientNotPendingException(ClientNotPendingException ex) {
 
+        // teste de robustez: cliente já processado é um conflito de estado (409),
+        // não "não encontrado" (404).
         ErrorResponseDTO error = new ErrorResponseDTO(
-                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.CONFLICT.value(),
                 ex.getMessage(),
                 LocalDateTime.now()
         );
 
-        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return  ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(CollaboratorNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleCollaboratorNotFoundException(ClientNotPendingException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleCollaboratorNotFoundException(CollaboratorNotFoundException ex) {
 
         ErrorResponseDTO error = new ErrorResponseDTO(
                 HttpStatus.NOT_FOUND.value(),

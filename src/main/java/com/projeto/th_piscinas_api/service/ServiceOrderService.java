@@ -37,6 +37,7 @@ public class ServiceOrderService {
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
     private final ServiceOrderMapper serviceOrderMapper;
+    private final ReceivableService receivableService;
 
 
     @Transactional(readOnly = true)
@@ -124,6 +125,12 @@ public class ServiceOrderService {
         }
 
         ServiceOrder savedOrder = serviceOrderRepository.save(order);
+
+        // A completed order becomes money to receive — that's what feeds the
+        // "A receber" list on the Financeiro screen.
+        if (savedOrder.getStatus() == ServiceOrderStatus.CONCLUIDA) {
+            receivableService.createForServiceOrder(savedOrder);
+        }
 
         return serviceOrderMapper.toResponse(savedOrder);
     }

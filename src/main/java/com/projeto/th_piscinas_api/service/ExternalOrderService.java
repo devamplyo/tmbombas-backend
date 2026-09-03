@@ -93,9 +93,12 @@ public class ExternalOrderService {
 
         demandSend(order);
 
-        // builds the sale from the order's items, recorded under the original salesperson
+        // builds the sale from the order's items, recorded under the original salesperson.
+        // achado F19: usa o preço que já estava no pedido (o que o cliente viu
+        // e o ADM aprovou), não o preço atual do produto — que pode ter mudado
+        // entre o pedido ser enviado e a aprovação.
         List<SaleItemRequest> saleItems = order.getItems().stream()
-                .map(i -> new SaleItemRequest(i.getProduct().getId(), i.getQuantity()))
+                .map(i -> new SaleItemRequest(i.getProduct().getId(), i.getQuantity(), i.getUnitPrice()))
                 .toList();
         SaleRequest saleReq = new SaleRequest(
                 order.getCustomerName(), null, null, null, saleItems);

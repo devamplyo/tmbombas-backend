@@ -52,7 +52,7 @@ class ClientServiceTest {
 
     private ClientResponse buildResponse(Long id, String document) {
         return new ClientResponse(id, "Cliente Teste", document, null, null,
-                ClientType.PESSOA_FISICA, null, true, null, null);
+                ClientType.PESSOA_FISICA, null, true, null, null, null);
     }
 
     private ClientRequest buildRequest(String document) {

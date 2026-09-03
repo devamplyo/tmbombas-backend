@@ -7,6 +7,7 @@ import com.projeto.th_piscinas_api.dto.collaborator.ServiceOrderHistoryItem;
 import com.projeto.th_piscinas_api.exception.CollaboratorNotFoundException;
 import com.projeto.th_piscinas_api.model.User;
 import com.projeto.th_piscinas_api.repository.*;
+import com.projeto.th_piscinas_api.util.SaleStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +61,9 @@ public class CollaboratorService {
                 .orElseThrow(() -> new CollaboratorNotFoundException(
                         "Colaborador não encontrado: " + id));
 
-        List<SaleHistoryItem> sales = saleRepository.findBySellerIdOrderByCreatedAtDesc(id)
+        // achado F20: excluído venda cancelada — o histórico não pode
+        // aparecer como se fosse receita gerada de verdade.
+        List<SaleHistoryItem> sales = saleRepository.findBySellerIdAndStatusOrderByCreatedAtDesc(id, SaleStatus.ATIVA)
                 .stream()
                 .map(sale -> new SaleHistoryItem(sale.getId(), sale.getCustomerName(),
                         sale.getTotal(), sale.getCreatedAt()))

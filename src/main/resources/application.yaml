@@ -43,6 +43,12 @@ spring:
 JWT_SECRET: dev-only-secret-change-me-please-0123456789abcdef
 JWT_EXPIRATION_MINUTES: 120
 
+app:
+  cookie:
+    # cookie Secure exige HTTPS — localhost roda em HTTP puro. Prod usa o
+    # default (true) do @Value em AuthController, sem precisar declarar aqui.
+    secure: false
+
 # Initial ADM Master created on first start (dev profile). In prod it comes from the environment.
 
 nfse:

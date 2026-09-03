@@ -39,7 +39,12 @@ public class ProductController {
 
     }
 
+    // revisão de permissões: editar produto não tinha trava nenhuma — caía
+    // no .authenticated() global, então qualquer usuário logado (Técnico,
+    // Vendedor Externo) conseguia alterar preço/estoque de qualquer produto.
+    // Alinhado com o POST de criar (só ADM Master e Vendedor Interno).
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADM_MASTER','VENDEDOR_INTERNO')")
     public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
                                                          @Valid @RequestBody ProductRequest request) {
         ProductResponse productResponse = productService.updateProduct(id, request);
@@ -82,6 +87,15 @@ public class ProductController {
     public ResponseEntity<Void> deactivateProduct(@PathVariable Long id) {
 
         productService.deactivateProduct(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/activate")
+    @PreAuthorize("hasRole('ADM_MASTER')")
+    public ResponseEntity<Void> activateProduct(@PathVariable Long id) {
+
+        productService.activateProduct(id);
 
         return ResponseEntity.noContent().build();
     }

@@ -50,7 +50,12 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.CREATED).body(client);
     }
 
+    // revisão de permissões: editar cliente herdava a trava da classe (os 4
+    // papéis), então Técnico e Vendedor Externo editavam dados de qualquer
+    // cliente. Só o ADM Master edita pela tela (ClientsPage) — restringido
+    // pra isso; criar cliente continua liberado pros vendedores.
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADM_MASTER')")
     public ResponseEntity<ClientResponse> updateClient(@PathVariable Long id,
                                                        @Valid @RequestBody ClientRequest req) {
 
