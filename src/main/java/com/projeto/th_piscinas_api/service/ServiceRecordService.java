@@ -107,6 +107,26 @@ public class ServiceRecordService {
         return response.stream().map(this::toResponse).toList();
     }
 
+//    @Transactional
+//    public void deleteRecord(Long orderId, User technician) {
+//
+//        ServiceOrder order = serviceOrderRepository.findById(orderId).orElseThrow(
+//                () -> new OrderNotFoundException("Ordem de serviço não encontrada: " + orderId)
+//        );
+//
+//        if (order.getTechnician() == null
+//                || !order.getTechnician().getId().equals(technician.getId())) {
+//            throw new ProfileNotValidateException("Este serviço não está atribuído a você");
+//        }
+//
+//        serviceOrderRepository.deleteById(order.getId());
+//
+//        List<ServiceRecord> listOfImages =
+//
+//        imageStoreService.deleteImage();
+//
+//    }
+
     private ServiceRecordResponse toResponse(ServiceRecord r) {
         List<ServiceRecordPhotoResponse> fotos = r.getPhotos().stream()
                 .map(p -> new ServiceRecordPhotoResponse(p.getUrl(), p.getFileName()))

@@ -111,6 +111,7 @@ public class TechnicianService {
                 .client(client)
                 .technician(technician)          // the logged-in technician themself
                 .title(req.title())
+                .orderNumber(req.order_number())
                 .description(req.description())
                 .price(req.price())
                 .status(ServiceOrderStatus.ORCADA)

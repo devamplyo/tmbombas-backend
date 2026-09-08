@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 public record BudgetRequest(
         @NotNull Long clientId,
+        @NotNull String order_number,
         @NotBlank String title,
         String description,
         @NotNull @DecimalMin(value = "0.0", inclusive = false) BigDecimal price

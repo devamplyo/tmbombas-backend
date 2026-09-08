@@ -67,7 +67,9 @@ public class TechnicianController {
     @PostMapping("/budgets")
     public ResponseEntity<ServiceOrderResponse> createBudget(@Valid @RequestBody BudgetRequest req,
                                                              @AuthenticationPrincipal User technician) {
+
         ServiceOrderResponse response = technicianService.createBudget(req, technician);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

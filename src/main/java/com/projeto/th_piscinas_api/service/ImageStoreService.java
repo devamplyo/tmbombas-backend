@@ -35,7 +35,9 @@ public class ImageStoreService {
      * which isn't publicly readable).
      */
     public String uploadImage(MultipartFile file) throws IOException {
+
         String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)

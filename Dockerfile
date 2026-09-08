@@ -14,7 +14,7 @@ FROM eclipse-temurin:17-jre-alpine AS runner
 
 WORKDIR /app
 
-COPY --from=builder ./app/target/th-piscinas-api-0.0.5.jar ./app.jar
+COPY --from=builder ./app/target/th-piscinas-api-1.0.11.jar ./app.jar
 
 EXPOSE 4015
 

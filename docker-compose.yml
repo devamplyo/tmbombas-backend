@@ -13,10 +13,19 @@ services:
     ports:
       - "5015:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d th_piscinas_database" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d th_piscinas_database"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"   # só localhost
+    volumes:
+      - redis_data:/data
 
   th_piscinas_api:
     build:
@@ -27,25 +36,26 @@ services:
     depends_on:
       th_piscinas_database:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DATABASE_URL: jdbc:postgresql://th_piscinas_database:5432/th_piscinas_database
-      DATABASE_USERNAME: ${DATABASE_USER}
+      DATABASE_USER: ${DATABASE_USER}        # ← corrigido
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      ADMIN_NOME: ${ADMIN_NOME}
+      ADMIN_MATRICULA: ${ADMIN_MATRICULA}
+      ADMIN_SENHA: ${ADMIN_SENHA}
       SERVER_PORT: 4015
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
-      SPRING_JPA_PROPERTIES_HIBERNATE_JDBC_TIME_ZONE: UTC
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MINUTES: ${JWT_EXPIRATION_MINUTES}
-      SPRING_JACKSON_PROPERTY_NAMING_STRATEGY: "SNAKE_CASE"
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       CLOUDFLARE_R2_ENDPOINT: ${R2_ENDPOINT}
       CLOUDFLARE_R2_ACCESS_KEY: ${R2_ACCESS_KEY}
       CLOUDFLARE_R2_SECRET_KEY: ${R2_SECRET_KEY}
-      CLOUDFLARE_R2_BUCKET_NAME: alerta-recife
-      CLOUDFLARE_R2_PUBLIC_URL: https://cdn.carldev.online
+      CLOUDFLARE_R2_BUCKET_NAME: tmbombas
+      CLOUDFLARE_R2_PUBLIC_URL: https://cdn.tmbombas.online/tmbombas
       FOCUSNFE_TOKEN: ${FOCUSNFE_TOKEN:-}
       FOCUSNFE_AMBIENTE: ${FOCUSNFE_AMBIENTE:-homologacao}
       NFSE_SIMULATE: ${NFSE_SIMULATE:-true}
@@ -68,26 +78,17 @@ services:
       NFSE_PERCENTUAL_TRIBUTOS_SIMPLES_NACIONAL: ${NFSE_PERCENTUAL_TRIBUTOS_SIMPLES_NACIONAL:-}
       NFSE_SERIE_DPS: ${NFSE_SERIE_DPS:-1}
     ports:
-      - "4015:4015"
+      - "127.0.0.1:4015:4015"
     volumes:
       - uploads_data:/data/uploads
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:4000/api/auth/me/ping || true" ]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4015/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
-
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
+      start_period: 60s
 
 volumes:
   postgres_data:
-  redis_data: { }
-  uploads_data: { }
+  redis_data: {}
+  uploads_data: {}
