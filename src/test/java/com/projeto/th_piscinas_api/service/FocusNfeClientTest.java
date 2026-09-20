@@ -12,8 +12,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Locks in the {@code /v2/nfsen} payload that already authorized a real invoice
- * in production (company MRM, Recife/PE, 07/27/2026) — see NFSE-NACIONAL-RECIFE.md.
+ * Locks in the {@code /v2/nfsen} payload already authorized by Recife/PE for
+ * TM Bombas (09/20/2026) — see NFSE-NACIONAL-RECIFE.md.
  * Any change that breaks one of these fields reproduces an already-cataloged
  * error (E0713, E0312, E0116/E0120).
  */
@@ -25,10 +25,10 @@ class FocusNfeClientTest {
     @BeforeEach
     void setUp() {
         props = new NfseProperties();
-        props.setCnpjPrestador("42194869000164");
-        props.setInscricaoMunicipal("7387172");
+        props.setCnpjPrestador("59774374000107");
+        props.setInscricaoMunicipal("8746737");
         props.setCodigoMunicipio("2611606");
-        props.setCodigoTributacaoNacional("171201");
+        props.setCodigoTributacaoNacional("140101");
         props.setCodigoTributacaoMunicipal("501");
         props.setCodigoOpcaoSimplesNacional(1); // not opted in
         props.setPercentualTributosFederais(new BigDecimal("0.00"));
@@ -78,7 +78,7 @@ class FocusNfeClientTest {
 
         // E0312 happened with the right code but missing the municipal one — here
         // we lock in both being present and as an Integer (not a String).
-        assertThat(payload.get("codigo_tributacao_nacional_iss")).isInstanceOf(Integer.class).isEqualTo(171201);
+        assertThat(payload.get("codigo_tributacao_nacional_iss")).isInstanceOf(Integer.class).isEqualTo(140101);
         assertThat(payload.get("codigo_tributacao_municipal_iss")).isInstanceOf(Integer.class).isEqualTo(501);
     }
 
@@ -123,7 +123,7 @@ class FocusNfeClientTest {
         Map<String, Object> payload = client.buildPayload(buildInvoice(), 2, 5L);
 
         // E0116: other registrations require the field.
-        assertThat(payload).containsEntry("inscricao_municipal_prestador", "7387172");
+        assertThat(payload).containsEntry("inscricao_municipal_prestador", "8746737");
     }
 
     @Test

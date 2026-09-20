@@ -32,7 +32,7 @@ public class NfseProperties {
     private String razaoSocial = "TH Bombas";
     private String emailPrestador = "";
 
-    /** codigo_tributacao_nacional_iss (Integer[6], XML tag cTribNac). E.g.: 171201. */
+    /** codigo_tributacao_nacional_iss (Integer[6], XML tag cTribNac). E.g.: 140101. */
     private String codigoTributacaoNacional = "";
 
     /** codigo_tributacao_municipal_iss (Integer[3], XML tag cTribMun). E.g.: 501. */

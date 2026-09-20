@@ -30,8 +30,8 @@ import java.util.Map;
  * <p><b>NFS-e</b> — Nationwide standard (endpoint {@code /v2/nfsen}), the only one Recife/PE
  * accepts. The old endpoint ({@code /v2/nfse}, ABRASF) returns {@code empresa_nao_habilitada}
  * for municipalities on the nationwide environment. Payload and endpoint validated with an
- * invoice authorized in production (07/26-27/2026, company MRM) and, for a ME/EPP opt-in, in
- * homologation (09/20/2026, company TM Bombas). Details and error catalog in
+ * invoice authorized in homologation (09/20/2026, TM Bombas), including the ME/EPP opt-in
+ * fields. Details and error catalog in
  * NFSE-NACIONAL-RECIFE.md (root of the projects repository).</p>
  *
  * <p><b>NF-e</b> — product invoice (model 55), endpoint {@code /v2/nfe}. Asynchronous: the POST

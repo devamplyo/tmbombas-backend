@@ -25,12 +25,12 @@ class DpsNumberAllocatorTest {
 
     @Test
     void next_primeiraChamada_criaSequenciaEComecaEm1() {
-        when(repository.findByCnpjAndSerieForUpdate("42194869000164", 2)).thenReturn(Optional.empty());
+        when(repository.findByCnpjAndSerieForUpdate("59774374000107", 2)).thenReturn(Optional.empty());
         when(repository.saveAndFlush(any(NfseDpsSequence.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
         when(repository.save(any(NfseDpsSequence.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        long numero = allocator.next("42194869000164", 2);
+        long numero = allocator.next("59774374000107", 2);
 
         assertThat(numero).isEqualTo(1L);
     }
@@ -38,13 +38,13 @@ class DpsNumberAllocatorTest {
     @Test
     void next_chamadasConsecutivas_nuncaRepetemNumero() {
         NfseDpsSequence seq = NfseDpsSequence.builder()
-                .id(1L).cnpj("42194869000164").serie(2).ultimoNumero(5L).build();
-        when(repository.findByCnpjAndSerieForUpdate("42194869000164", 2)).thenReturn(Optional.of(seq));
+                .id(1L).cnpj("59774374000107").serie(2).ultimoNumero(5L).build();
+        when(repository.findByCnpjAndSerieForUpdate("59774374000107", 2)).thenReturn(Optional.of(seq));
         when(repository.save(any(NfseDpsSequence.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        long primeiro = allocator.next("42194869000164", 2);
-        long segundo = allocator.next("42194869000164", 2);
-        long terceiro = allocator.next("42194869000164", 2);
+        long primeiro = allocator.next("59774374000107", 2);
+        long segundo = allocator.next("59774374000107", 2);
+        long terceiro = allocator.next("59774374000107", 2);
 
         assertThat(primeiro).isEqualTo(6L);
         assertThat(segundo).isEqualTo(7L);
@@ -53,9 +53,9 @@ class DpsNumberAllocatorTest {
 
     @Test
     void peekNext_semSequenciaExistente_retorna1SemCriarLinha() {
-        when(repository.findByCnpjAndSerie("42194869000164", 2)).thenReturn(Optional.empty());
+        when(repository.findByCnpjAndSerie("59774374000107", 2)).thenReturn(Optional.empty());
 
-        long proximo = allocator.peekNext("42194869000164", 2);
+        long proximo = allocator.peekNext("59774374000107", 2);
 
         assertThat(proximo).isEqualTo(1L);
         verify(repository, never()).save(any());
@@ -65,11 +65,11 @@ class DpsNumberAllocatorTest {
     @Test
     void peekNext_naoConsomeNumero() {
         NfseDpsSequence seq = NfseDpsSequence.builder()
-                .id(1L).cnpj("42194869000164").serie(2).ultimoNumero(5L).build();
-        when(repository.findByCnpjAndSerie("42194869000164", 2)).thenReturn(Optional.of(seq));
+                .id(1L).cnpj("59774374000107").serie(2).ultimoNumero(5L).build();
+        when(repository.findByCnpjAndSerie("59774374000107", 2)).thenReturn(Optional.of(seq));
 
-        long primeiro = allocator.peekNext("42194869000164", 2);
-        long segundo = allocator.peekNext("42194869000164", 2);
+        long primeiro = allocator.peekNext("59774374000107", 2);
+        long segundo = allocator.peekNext("59774374000107", 2);
 
         assertThat(primeiro).isEqualTo(6L);
         assertThat(segundo).isEqualTo(6L); // didn't advance - peek doesn't consume
