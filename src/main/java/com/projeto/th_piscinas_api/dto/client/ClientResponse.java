@@ -14,6 +14,7 @@ public record ClientResponse(
         String phone,
         ClientType type,
         AddressDto address,
+        String stateRegistration,
         Boolean active,
         // achado (descoberto ao corrigir F14): faltava esse campo — o front só
         // tinha `active` pra decidir o badge/botões, e PENDENTE e REPROVADO são

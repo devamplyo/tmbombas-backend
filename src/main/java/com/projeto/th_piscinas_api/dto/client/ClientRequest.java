@@ -13,6 +13,8 @@ public record ClientRequest(
         @Email String email,
         String phone,
         @NotNull ClientType type,
-        @Valid AddressDto address
+        @Valid AddressDto address,
+        // inscrição estadual — só para empresa contribuinte de ICMS (NF-e); opcional
+        String stateRegistration
 ) {
 }

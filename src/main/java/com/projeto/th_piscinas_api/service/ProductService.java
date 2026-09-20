@@ -33,21 +33,53 @@ public class ProductService {
         return product.stream().map(productMapper::toResponse).toList();
     }
 
+    /** Internal/tests: fiscal fields are kept (caller already trusted). The controller uses the overload with the flag. */
     public ProductResponse createProduct(ProductRequest request) {
+        return createProduct(request, true);
+    }
+
+    /**
+     * @param canEditFiscal true only for the ADM Master: the fiscal fields (NCM, CFOP, origin,
+     *                      CSOSN) of anyone else are dropped, so a salesperson can't change the
+     *                      tax treatment of the invoices.
+     */
+    public ProductResponse createProduct(ProductRequest request, boolean canEditFiscal) {
         if (productRepository.existsByCode(request.code())) {
             throw new CodeAlreadyInUseException("Código já está em uso: " + request.code());
         }
         Product productResponse = productMapper.toEntity(request);
+        if (!canEditFiscal) {
+            productResponse.setNcm(null);
+            productResponse.setCfop(null);
+            productResponse.setOrigin(null);
+            productResponse.setCsosn(null);
+        }
         Product saved = productRepository.save(productResponse);
 
         return productMapper.toResponse(saved);
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest request) {
+        return updateProduct(id, request, true);
+    }
+
+    public ProductResponse updateProduct(Long id, ProductRequest request, boolean canEditFiscal) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found: " + id));
 
+        String ncm = product.getNcm();
+        String cfop = product.getCfop();
+        Integer origin = product.getOrigin();
+        String csosn = product.getCsosn();
+
         productMapper.updateEntity(request, product);
+
+        if (!canEditFiscal) {
+            product.setNcm(ncm);
+            product.setCfop(cfop);
+            product.setOrigin(origin);
+            product.setCsosn(csosn);
+        }
 
         Product productSaved = productRepository.save(product);
 

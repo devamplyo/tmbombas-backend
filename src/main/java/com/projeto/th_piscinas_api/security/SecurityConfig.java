@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .hasAnyRole("ADM_MASTER", "VENDEDOR_INTERNO")
                         .requestMatchers("/api/admin/**").hasRole("ADM_MASTER")
                         .requestMatchers("/api/nfse/**").hasRole("ADM_MASTER")
+                        .requestMatchers("/api/invoices/**").hasRole("ADM_MASTER")
                         .requestMatchers("/api/technician/**").hasAnyRole("ADM_MASTER", "TECNICO_CONDOMINIAL")
                         .requestMatchers("/api/servicetasks/**").authenticated()
                         .requestMatchers("/api/cart/**").authenticated()

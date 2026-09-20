@@ -20,6 +20,10 @@ public record ProductResponse(
         Double maxFlowRate,
         Integer voltage,
         String unit,
+        String ncm,
+        String cfop,
+        Integer origin,
+        String csosn,
         Boolean active,
         LocalDateTime createdAt,
         LocalDateTime updatedAt

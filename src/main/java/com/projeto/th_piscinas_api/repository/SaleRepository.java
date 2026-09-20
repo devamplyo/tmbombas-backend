@@ -43,4 +43,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                                                            @Param("to") LocalDateTime to);
 
     List<Sale> findBySellerIdAndStatusOrderByCreatedAtDesc(Long sellerId, SaleStatus status);
+
+    /** Recent active sales: the candidates for an NF-e ("Aguardando nota"). */
+    List<Sale> findTop200ByStatusOrderByCreatedAtDesc(SaleStatus status);
 }

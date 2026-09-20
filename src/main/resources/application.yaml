@@ -50,7 +50,21 @@ nfse:
   percentual-tributos-estaduais: ${NFSE_PERCENTUAL_TRIBUTOS_ESTADUAIS:0.00}
   percentual-tributos-municipais: ${NFSE_PERCENTUAL_TRIBUTOS_MUNICIPAIS:0.00}
   percentual-tributos-simples-nacional: ${NFSE_PERCENTUAL_TRIBUTOS_SIMPLES_NACIONAL:}
+  regime-tributario-simples-nacional: ${NFSE_REGIME_TRIBUTARIO_SN:1}
   serie-dps: ${NFSE_SERIE_DPS:1}
+
+# NF-e (venda de produto). Token/ambiente/simulação/trava de produção vêm do bloco nfse acima.
+nfe:
+  ie-emitente: ${NFE_IE_EMITENTE:}
+  uf-emitente: ${NFE_UF_EMITENTE:PE}
+  regime-tributario: ${NFE_REGIME_TRIBUTARIO:1}
+  natureza-operacao: ${NFE_NATUREZA_OPERACAO:Venda de mercadoria}
+  ncm-padrao: ${NFE_NCM_PADRAO:84137090}
+  cfop-padrao: ${NFE_CFOP_PADRAO:5102}
+  cfop-interestadual-padrao: ${NFE_CFOP_INTERESTADUAL_PADRAO:6102}
+  origem-padrao: ${NFE_ORIGEM_PADRAO:0}
+  csosn-padrao: ${NFE_CSOSN_PADRAO:102}
+  pis-cofins-cst-padrao: ${NFE_PIS_COFINS_CST_PADRAO:49}
 
 ---
 spring:

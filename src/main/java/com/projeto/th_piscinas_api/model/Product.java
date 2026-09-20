@@ -76,6 +76,24 @@ public class Product {
     @Column(nullable = false)
     private Boolean active = true;
 
+    // ---- fiscal data (NF-e). Only the ADM Master fills these in; while empty,
+    // the NF-e falls back to the company defaults (nfe.* properties). ----
+
+    /** NCM: 8 digits (product classification). */
+    @Column(length = 8)
+    private String ncm;
+
+    /** CFOP: 4 digits (kind of operation). */
+    @Column(length = 4)
+    private String cfop;
+
+    /** Origin of the goods, 0-8 (0 = national). */
+    private Integer origin;
+
+    /** CSOSN: 3 digits (ICMS tax situation for Simples Nacional). */
+    @Column(length = 3)
+    private String csosn;
+
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -59,7 +59,7 @@ class ProductServiceTest {
     private ProductResponse buildResponse(Long id, String code) {
         return new ProductResponse(id, "Produto Teste", null, code, "7891234567890",
                 "Fabricante", new BigDecimal("99.90"), 10, 5,
-                ProductCategory.PUMP, null, null, null, "un", true,
+                ProductCategory.PUMP, null, null, null, "un", null, null, null, null, true,
                 LocalDateTime.now(), LocalDateTime.now());
     }
 
@@ -80,7 +80,7 @@ class ProductServiceTest {
     @Test
     void createProduct_success() {
         ProductRequest req = new ProductRequest("Nome", null, "P001", "7891234567890",
-                "Fab", new BigDecimal("10.00"), 5, 2, ProductCategory.PUMP, null, null, null, "un");
+                "Fab", new BigDecimal("10.00"), 5, 2, ProductCategory.PUMP, null, null, null, "un", null, null, null, null);
         Product entity = buildProduct(1L, "P001", 5, 2);
         ProductResponse resp = buildResponse(1L, "P001");
 
@@ -98,7 +98,7 @@ class ProductServiceTest {
     @Test
     void createProduct_throwsCodeAlreadyInUseException_whenCodeExists() {
         ProductRequest req = new ProductRequest("Nome", null, "P001", "7891234567890",
-                "Fab", new BigDecimal("10.00"), 5, 2, ProductCategory.PUMP, null, null, null, "un");
+                "Fab", new BigDecimal("10.00"), 5, 2, ProductCategory.PUMP, null, null, null, "un", null, null, null, null);
 
         when(productRepository.existsByCode("P001")).thenReturn(true);
 
@@ -109,7 +109,7 @@ class ProductServiceTest {
     @Test
     void updateProduct_success() {
         ProductRequest req = new ProductRequest("Nome Novo", null, "P001", "7891234567890",
-                "Fab", new BigDecimal("15.00"), 8, 3, ProductCategory.FILTER, null, null, null, "un");
+                "Fab", new BigDecimal("15.00"), 8, 3, ProductCategory.FILTER, null, null, null, "un", null, null, null, null);
         Product existing = buildProduct(1L, "P001", 10, 5);
         ProductResponse resp = buildResponse(1L, "P001");
 
@@ -127,7 +127,7 @@ class ProductServiceTest {
     @Test
     void updateProduct_throwsProductNotFoundException_whenNotExists() {
         ProductRequest req = new ProductRequest("Nome", null, "P001", "7891234567890",
-                "Fab", new BigDecimal("10.00"), 5, 2, ProductCategory.PUMP, null, null, null, "un");
+                "Fab", new BigDecimal("10.00"), 5, 2, ProductCategory.PUMP, null, null, null, "un", null, null, null, null);
 
         when(productRepository.findById(99L)).thenReturn(Optional.empty());
 

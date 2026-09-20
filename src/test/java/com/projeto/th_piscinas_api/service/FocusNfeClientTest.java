@@ -133,4 +133,27 @@ class FocusNfeClientTest {
         assertThat(payload).containsEntry("serie_dps", 2);
         assertThat(payload).containsEntry("numero_dps", 42L);
     }
+
+    @Test
+    void buildPayload_optanteMeEpp_enviaORegimeDeApuracaoEOPercentualDoSimples() {
+        props.setCodigoOpcaoSimplesNacional(3);
+        props.setRegimeTributarioSimplesNacional(1);
+        props.setPercentualTributosSimplesNacional(new BigDecimal("6.00"));
+
+        Map<String, Object> payload = client.buildPayload(buildInvoice(), 1, 1L);
+
+        // E0166 (homologation, TM Bombas): a ME/EPP must say how its taxes are assessed.
+        assertThat(payload).containsEntry("codigo_opcao_simples_nacional", 3);
+        assertThat(payload).containsEntry("regime_tributario_simples_nacional", 1);
+        assertThat(payload).containsEntry("percentual_total_tributos_simples_nacional", new BigDecimal("6.00"));
+        // E0713 mirror: an opt-in taxpayer doesn't send the three percentages.
+        assertThat(payload).doesNotContainKey("percentual_total_tributos_federais");
+    }
+
+    @Test
+    void buildPayload_naoOptante_naoEnviaORegimeDoSimples() {
+        Map<String, Object> payload = client.buildPayload(buildInvoice(), 1, 1L);
+
+        assertThat(payload).doesNotContainKey("regime_tributario_simples_nacional");
+    }
 }

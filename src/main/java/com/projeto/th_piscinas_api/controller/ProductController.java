@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,9 +32,10 @@ public class ProductController {
 
     @PreAuthorize("hasAnyRole('ADM_MASTER','VENDEDOR_INTERNO')")
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request,
+                                                         Authentication authentication) {
 
-        ProductResponse product = productService.createProduct(request);
+        ProductResponse product = productService.createProduct(request, isAdmMaster(authentication));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
 
@@ -46,8 +48,9 @@ public class ProductController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADM_MASTER','VENDEDOR_INTERNO')")
     public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id,
-                                                         @Valid @RequestBody ProductRequest request) {
-        ProductResponse productResponse = productService.updateProduct(id, request);
+                                                         @Valid @RequestBody ProductRequest request,
+                                                         Authentication authentication) {
+        ProductResponse productResponse = productService.updateProduct(id, request, isAdmMaster(authentication));
 
         return ResponseEntity.status(HttpStatus.OK).body(productResponse);
     }
@@ -98,5 +101,11 @@ public class ProductController {
         productService.activateProduct(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    /** Only the ADM Master may set the fiscal fields (NCM, CFOP, origin, CSOSN) of a product. */
+    private static boolean isAdmMaster(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADM_MASTER".equals(a.getAuthority()));
     }
 }

@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.model;
 
+import com.projeto.th_piscinas_api.util.InvoiceType;
 import com.projeto.th_piscinas_api.util.NfseStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,8 +14,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Issued NFS-e (service invoice) — entity independent from the Service Order.
- * {@code serviceOrderId} is just the opaque service order id in the front (no FK in Java).
+ * Issued fiscal document, independent from the Service Order / Sale that originated it.
+ * NFS-e (service): {@code serviceOrderId} is just the opaque service order id (no FK in Java).
+ * NF-e (product): {@code saleId} is the sale id, and {@code chaveAcesso}/{@code protocolo}
+ * come from SEFAZ. The column {@code numero_nfse} holds the document number of either type.
  */
 @Entity
 @Table(name = "invoices")
@@ -32,6 +35,24 @@ public class Invoice {
     /** Our own unique reference (idempotency with Focus). */
     @Column(nullable = false, unique = true)
     private String reference;
+
+    /** NFS-e (service) or NF-e (product). Existing rows are NFS-e. */
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "document_type", nullable = false, length = 10)
+    private InvoiceType documentType = InvoiceType.NFSE;
+
+    /** Sale that originated an NF-e (no FK, same convention as {@code serviceOrderId}). */
+    @Column(name = "sale_id")
+    private Long saleId;
+
+    /** 44-digit access key of the NF-e (SEFAZ). */
+    @Column(name = "chave_acesso", length = 60)
+    private String chaveAcesso;
+
+    /** Authorization protocol returned by SEFAZ. */
+    @Column(length = 40)
+    private String protocolo;
 
     /** Service order id in the front (Node) — used to list/deduplicate. */
     @Column(name = "service_order_id")

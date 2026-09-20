@@ -70,6 +70,13 @@ public class NfseProperties {
     private BigDecimal percentualTributosSimplesNacional;
 
     /**
+     * regime_tributario_simples_nacional (regApTribSN) — mandatory for a ME/EPP opt-in (error
+     * E0166 without it): 1 = federal and municipal taxes paid inside the Simples; 2 = federal
+     * inside, ISS outside (municipal law); 3 = both outside the Simples.
+     */
+    private int regimeTributarioSimplesNacional = 1;
+
+    /**
      * DPS series used by the backend. Recommended to use its own series
      * (e.g.: 2) to avoid colliding with numbering already used manually
      * outside the system (e.g.: Postman tests on series 1).
@@ -146,6 +153,9 @@ public class NfseProperties {
 
     public BigDecimal getPercentualTributosSimplesNacional() { return percentualTributosSimplesNacional; }
     public void setPercentualTributosSimplesNacional(BigDecimal percentualTributosSimplesNacional) { this.percentualTributosSimplesNacional = percentualTributosSimplesNacional; }
+
+    public int getRegimeTributarioSimplesNacional() { return regimeTributarioSimplesNacional; }
+    public void setRegimeTributarioSimplesNacional(int regimeTributarioSimplesNacional) { this.regimeTributarioSimplesNacional = regimeTributarioSimplesNacional; }
 
     public int getSerieDps() { return serieDps; }
     public void setSerieDps(int serieDps) { this.serieDps = serieDps; }

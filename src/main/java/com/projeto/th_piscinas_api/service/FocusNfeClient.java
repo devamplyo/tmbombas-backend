@@ -4,11 +4,18 @@ import com.projeto.th_piscinas_api.config.NfseProperties;
 import com.projeto.th_piscinas_api.model.Invoice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -18,14 +25,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Real integration with Focus NFe — Nationwide NFS-e standard (endpoint
- * {@code /v2/nfsen}), the only one Recife/PE accepts. The old endpoint
- * ({@code /v2/nfse}, ABRASF) returns {@code empresa_nao_habilitada} for
- * municipalities on the nationwide environment.
+ * Real integration with Focus NFe.
  *
- * <p>Payload and endpoint validated with an invoice authorized in production
- * (07/26-27/2026, company MRM). Details and error catalog in
+ * <p><b>NFS-e</b> — Nationwide standard (endpoint {@code /v2/nfsen}), the only one Recife/PE
+ * accepts. The old endpoint ({@code /v2/nfse}, ABRASF) returns {@code empresa_nao_habilitada}
+ * for municipalities on the nationwide environment. Payload and endpoint validated with an
+ * invoice authorized in production (07/26-27/2026, company MRM) and, for a ME/EPP opt-in, in
+ * homologation (09/20/2026, company TM Bombas). Details and error catalog in
  * NFSE-NACIONAL-RECIFE.md (root of the projects repository).</p>
+ *
+ * <p><b>NF-e</b> — product invoice (model 55), endpoint {@code /v2/nfe}. Asynchronous: the POST
+ * only says Focus received it; the result comes from the lookup.</p>
  */
 @Slf4j
 @Component
@@ -34,11 +44,16 @@ public class FocusNfeClient {
 
     private static final ZoneOffset RECIFE_OFFSET = ZoneOffset.of("-03:00");
     private static final DateTimeFormatter DATA_COMPETENCIA = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final int MAX_REDIRECTS = 4;
 
     private final NfseProperties props;
 
     /** Raw result of a call to Focus. */
     public record FocusResult(int httpStatus, Map<String, Object> body) {
+    }
+
+    /** A file (PDF/XML) fetched from Focus, to be streamed to the browser. */
+    public record FileResult(byte[] body, String contentType) {
     }
 
     private String baseUrl() {
@@ -84,6 +99,10 @@ public class FocusNfeClient {
         }
 
         payload.put("codigo_opcao_simples_nacional", props.getCodigoOpcaoSimplesNacional());
+        // A ME/EPP opt-in must say how its taxes are assessed (error E0166 without it).
+        if (props.isOptanteSimplesNacional()) {
+            payload.put("regime_tributario_simples_nacional", props.getRegimeTributarioSimplesNacional());
+        }
         payload.put("regime_especial_tributacao", props.getRegimeEspecialTributacao());
 
         String docTomador = digits(invoice.getClientDocument());
@@ -121,31 +140,16 @@ public class FocusNfeClient {
         return payload;
     }
 
+    // ---------- NFS-e (/v2/nfsen) ----------
+
     /** Sends the NFS-e for issuance. {@code ref} is our own reference (idempotency). */
-    @SuppressWarnings("unchecked")
     public FocusResult emit(String ref, Map<String, Object> payload) {
-        var response = RestClient.create().post()
-                .uri(baseUrl() + "/v2/nfsen?ref={ref}", ref)
-                .header("Authorization", authHeader())
-                .body(payload)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, (req, res) -> { /* errors handled via the body */ })
-                .toEntity(Map.class);
-        return new FocusResult(response.getStatusCode().value(),
-                response.getBody() == null ? Map.of() : (Map<String, Object>) response.getBody());
+        return call(HttpMethod.POST, "/v2/nfsen?ref={ref}", ref, payload);
     }
 
     /** Checks the progress/result of an NFS-e by its {@code ref}. */
-    @SuppressWarnings("unchecked")
     public FocusResult consult(String ref) {
-        var response = RestClient.create().get()
-                .uri(baseUrl() + "/v2/nfsen/{ref}", ref)
-                .header("Authorization", authHeader())
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, (req, res) -> { /* errors handled via the body */ })
-                .toEntity(Map.class);
-        return new FocusResult(response.getStatusCode().value(),
-                response.getBody() == null ? Map.of() : (Map<String, Object>) response.getBody());
+        return call(HttpMethod.GET, "/v2/nfsen/{ref}", ref, null);
     }
 
     /**
@@ -153,14 +157,80 @@ public class FocusNfeClient {
      * The cancellation window is limited and varies by municipality — once
      * it passes, the city rejects it and the tax is due.
      */
-    @SuppressWarnings("unchecked")
     public FocusResult cancel(String ref, String justificativa) {
-        var response = RestClient.create().method(org.springframework.http.HttpMethod.DELETE)
-                .uri(baseUrl() + "/v2/nfsen/{ref}", ref)
-                .header("Authorization", authHeader())
-                .header("Content-Type", "application/json")
-                .body(Map.of("justificativa", justificativa))
-                .retrieve()
+        return call(HttpMethod.DELETE, "/v2/nfsen/{ref}", ref, Map.of("justificativa", justificativa));
+    }
+
+    // ---------- NF-e (/v2/nfe) ----------
+
+    /** Sends the NF-e for issuance (asynchronous). {@code ref} is our own reference (idempotency). */
+    public FocusResult emitNfe(String ref, Map<String, Object> payload) {
+        return call(HttpMethod.POST, "/v2/nfe?ref={ref}", ref, payload);
+    }
+
+    /** Checks the progress/result of an NF-e by its {@code ref}. */
+    public FocusResult consultNfe(String ref) {
+        return call(HttpMethod.GET, "/v2/nfe/{ref}", ref, null);
+    }
+
+    /** Cancels an authorized NF-e (window: up to 24 h after issuance, some states allow more). */
+    public FocusResult cancelNfe(String ref, String justificativa) {
+        return call(HttpMethod.DELETE, "/v2/nfe/{ref}", ref, Map.of("justificativa", justificativa));
+    }
+
+    /** Turns a Focus relative path ("/arquivos_development/...") into an absolute URL. */
+    public String absoluteFileUrl(String caminho) {
+        if (caminho == null || caminho.isBlank()) return caminho;
+        if (caminho.startsWith("http://") || caminho.startsWith("https://")) return caminho;
+        return baseUrl() + (caminho.startsWith("/") ? caminho : "/" + caminho);
+    }
+
+    /**
+     * Downloads a Focus file (DANFE PDF / XML) on the server, so the token never reaches the
+     * browser. Redirects are followed by hand: the credential is only sent to the Focus host,
+     * never to the storage host a redirect may point to (which would reject it).
+     */
+    public FileResult download(String urlOrPath) throws IOException, InterruptedException {
+        String focusHost = URI.create(baseUrl()).getHost();
+        URI uri = URI.create(absoluteFileUrl(urlOrPath));
+        HttpClient http = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+
+        for (int hop = 0; hop <= MAX_REDIRECTS; hop++) {
+            HttpRequest.Builder req = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(30)).GET();
+            if (focusHost.equalsIgnoreCase(uri.getHost())) {
+                req.header("Authorization", authHeader());
+            }
+            HttpResponse<byte[]> res = http.send(req.build(), HttpResponse.BodyHandlers.ofByteArray());
+            int status = res.statusCode();
+            if (status >= 300 && status < 400) {
+                String location = res.headers().firstValue("Location").orElse(null);
+                if (location == null) break;
+                uri = uri.resolve(location);
+                continue;
+            }
+            if (status != 200) {
+                throw new IOException("A Focus respondeu " + status + " ao baixar o arquivo.");
+            }
+            return new FileResult(res.body(),
+                    res.headers().firstValue("Content-Type").orElse("application/octet-stream"));
+        }
+        throw new IOException("Não foi possível baixar o arquivo da Focus.");
+    }
+
+    // ---------- shared HTTP ----------
+
+    @SuppressWarnings("unchecked")
+    private FocusResult call(HttpMethod method, String pathTemplate, String ref, Object body) {
+        RestClient.RequestBodySpec spec = RestClient.create().method(method)
+                .uri(baseUrl() + pathTemplate, ref)
+                .header("Authorization", authHeader());
+        if (body != null) {
+            spec = spec.header("Content-Type", "application/json").body(body);
+        }
+        var response = spec.retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> { /* errors handled via the body */ })
                 .toEntity(Map.class);
         return new FocusResult(response.getStatusCode().value(),

@@ -37,6 +37,10 @@ public class Client {
 
     private String phone;
 
+    /** State registration (inscrição estadual). Only ICMS-contributing companies have one. */
+    @Column(name = "state_registration", length = 20)
+    private String stateRegistration;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
