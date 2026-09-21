@@ -1,6 +1,7 @@
 package com.projeto.th_piscinas_api.service;
 
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.maintenance.MaintenancePlanRequest;
 import com.projeto.th_piscinas_api.dto.maintenance.MaintenancePlanResponse;
 import com.projeto.th_piscinas_api.dto.maintenance.NextMaintenanceResponse;
@@ -47,7 +48,7 @@ public class MaintenancePlanService {
     @Transactional(readOnly = true)
     public List<MaintenancePlanResponse> due(Integer days) {
         int janela = (days != null) ? days : 7;
-        LocalDate limite = LocalDate.now().plusDays(janela);
+        LocalDate limite = Datas.hoje().plusDays(janela);
         return maintenancePlanRepository
                 .findByActiveTrueAndNextMaintenanceDateLessThanEqualOrderByNextMaintenanceDateAsc(limite)
                 .stream().map(maintenanceMapper::toResponse).toList();
@@ -73,7 +74,7 @@ public class MaintenancePlanService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Plano de manutenção não encontrado: " + id));
 
-        LocalDate data = (req != null && req.date() != null) ? req.date() : LocalDate.now();
+        LocalDate data = (req != null && req.date() != null) ? req.date() : Datas.hoje();
 
         plan.setLastMaintenanceDate(data);
         plan.setNextMaintenanceDate(data.plusDays(plan.getFrequencyDays()));
@@ -118,7 +119,7 @@ public class MaintenancePlanService {
                         p.getDescription(),
                         p.getNextMaintenanceDate(),
                         java.time.temporal.ChronoUnit.DAYS.between(
-                                LocalDate.now(), p.getNextMaintenanceDate())))
+                                Datas.hoje(), p.getNextMaintenanceDate())))
                 .toList();
     }
 

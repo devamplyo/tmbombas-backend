@@ -154,7 +154,7 @@ class StockEntryServiceTest {
 
         verify(stockEntryRepository, atLeastOnce()).save(entryCaptor.capture());
         StockEntry captured = entryCaptor.getAllValues().get(0);
-        assertThat(captured.getEntryDate()).isEqualTo(LocalDate.now());
+        assertThat(captured.getEntryDate()).isEqualTo(com.projeto.th_piscinas_api.util.Datas.hoje());
     }
 
     @Test

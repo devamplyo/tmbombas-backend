@@ -1,6 +1,7 @@
 package com.projeto.th_piscinas_api.service;
 
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.stockentry.StockEntryItemRequest;
 import com.projeto.th_piscinas_api.dto.stockentry.StockEntryRequest;
 import com.projeto.th_piscinas_api.dto.stockentry.StockEntryResponse;
@@ -50,7 +51,7 @@ public class StockEntryService {
                 .orElseThrow(() -> new SupplierNotFoundException(
                         "Fornecedor não encontrado: " + req.supplierId()));
 
-        LocalDate data = (req.entryDate() != null) ? req.entryDate() : LocalDate.now();
+        LocalDate data = (req.entryDate() != null) ? req.entryDate() : Datas.hoje();
 
         StockEntry entry = StockEntry.builder()
                 .supplier(supplier)

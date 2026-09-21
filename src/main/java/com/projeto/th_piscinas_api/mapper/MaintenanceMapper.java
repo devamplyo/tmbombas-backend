@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.mapper;
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.maintenance.MaintenancePlanRequest;
 import com.projeto.th_piscinas_api.dto.maintenance.MaintenancePlanResponse;
 import com.projeto.th_piscinas_api.model.Client;
@@ -23,7 +24,7 @@ public interface MaintenanceMapper {
 
     /** Helper used by the expression above. */
     default long daysUntilDue(LocalDate next) {
-        return next == null ? 0 : ChronoUnit.DAYS.between(LocalDate.now(), next);
+        return next == null ? 0 : ChronoUnit.DAYS.between(Datas.hoje(), next);
     }
 
     @Mapping(target = "id",          ignore = true)
@@ -37,7 +38,7 @@ public interface MaintenanceMapper {
 
     /** Next date: starts from the last maintenance (or today) + the frequency. */
     default LocalDate nextDate(LocalDate last, Integer frequencyDays) {
-        LocalDate base = (last != null) ? last : LocalDate.now();
+        LocalDate base = (last != null) ? last : Datas.hoje();
         return base.plusDays(frequencyDays);
 
     }

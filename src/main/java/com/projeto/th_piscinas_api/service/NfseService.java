@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.service;
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.config.NfseProperties;
 import com.projeto.th_piscinas_api.dto.nfse.NfseEmitRequest;
 import com.projeto.th_piscinas_api.dto.nfse.NfseResponse;
@@ -122,7 +123,7 @@ public class NfseService {
                 .description(descricao)
                 .value(order.getPrice())
                 .status(NfseStatus.PROCESSANDO)
-                .dataCompetencia(LocalDate.now())
+                .dataCompetencia(Datas.hoje())
                 .build();
 
         if (!props.isSimulate()) {
@@ -159,7 +160,7 @@ public class NfseService {
                 .description((order.getDescription() == null || order.getDescription().isBlank())
                         ? order.getTitle() : order.getDescription())
                 .value(order.getPrice() == null ? BigDecimal.ZERO : order.getPrice())
-                .dataCompetencia(LocalDate.now())
+                .dataCompetencia(Datas.hoje())
                 .build();
 
         String cnpj = digits(props.getCnpjPrestador());

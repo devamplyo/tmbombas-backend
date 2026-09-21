@@ -1,6 +1,7 @@
 package com.projeto.th_piscinas_api.service;
 
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.scheduler.AgendaItemResponse;
 import com.projeto.th_piscinas_api.dto.scheduler.ScheduleRequest;
 import com.projeto.th_piscinas_api.dto.serviceOrder.ServiceOrderResponse;
@@ -70,7 +71,7 @@ public class SchedulingService {
 
     @Transactional(readOnly = true)
     public List<AgendaItemResponse> agenda(Long technicianId, LocalDateTime from, LocalDateTime to) {
-        if (from == null) from = LocalDate.now().atStartOfDay();
+        if (from == null) from = Datas.hoje().atStartOfDay();
         if (to == null)   to = from.plusDays(7);
         if (from.isAfter(to)) {
             throw new InvalidDateException(

@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.service;
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.receivable.ConfirmReceivableRequest;
 import com.projeto.th_piscinas_api.dto.receivable.ReceivableListResponse;
 import com.projeto.th_piscinas_api.dto.receivable.ReceivableResponse;
@@ -59,7 +60,7 @@ public class ReceivableService {
         }
 
         LocalDate data = (req != null && req.receivedDate() != null)
-                ? req.receivedDate() : LocalDate.now();
+                ? req.receivedDate() : Datas.hoje();
         confirm(r, req != null ? req.paymentMethod() : null, data);
 
         return receivableMapper.toResponse(r);
@@ -80,7 +81,7 @@ public class ReceivableService {
 
         if (type == null || type == PaymentType.A_VISTA) {
 
-            confirm(r, method != null ? method : PaymentMethod.DINHEIRO, LocalDate.now());
+            confirm(r, method != null ? method : PaymentMethod.DINHEIRO, Datas.hoje());
         }
         return r;
     }
@@ -117,7 +118,7 @@ public class ReceivableService {
                 .clientName(order.getClient() == null ? null : order.getClient().getName())
                 .description(descricao)
                 .amount(order.getPrice())
-                .dueDate(LocalDate.now())
+                .dueDate(Datas.hoje())
                 .status(ReceivableStatus.PENDENTE)
                 .build());
     }

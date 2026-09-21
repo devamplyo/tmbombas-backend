@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.service;
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.supplier.SupplierSpendingItem;
 import com.projeto.th_piscinas_api.dto.supplier.SupplierSpendingResponse;
 import com.projeto.th_piscinas_api.exception.InvalidDateException;
@@ -22,7 +23,7 @@ public class SupplierReportService {
 
     @Transactional(readOnly = true)
     public SupplierSpendingResponse spentBySupplier(LocalDate inicio, LocalDate fim) {
-        if (fim == null) fim = LocalDate.now();
+        if (fim == null) fim = Datas.hoje();
         if (inicio == null) inicio = fim.minusMonths(6);
         if (inicio.isAfter(fim)) {
             throw new InvalidDateException(

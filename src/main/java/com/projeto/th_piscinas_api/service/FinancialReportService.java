@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.service;
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.financiallaunch.FinancialFlowResponse;
 import com.projeto.th_piscinas_api.dto.financiallaunch.FinancialLaunchRequest;
 import com.projeto.th_piscinas_api.dto.financiallaunch.FinancialLaunchResponse;
@@ -38,7 +39,7 @@ public class FinancialReportService {
     public FinancialFlowResponse fluxoPorPeriodo(LocalDate inicio,
                                                  LocalDate fim,
                                                  Granularidade granularidade) {
-        if (fim == null) fim = LocalDate.now();
+        if (fim == null) fim = Datas.hoje();
         if (inicio == null) inicio = fim.minusMonths(6);
         if (granularidade == null) granularidade = Granularidade.MES;
 

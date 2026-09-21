@@ -1,5 +1,6 @@
 package com.projeto.th_piscinas_api.service;
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.serviceOrder.ServiceOrderRequest;
 import com.projeto.th_piscinas_api.dto.serviceOrder.ServiceOrderResponse;
 import com.projeto.th_piscinas_api.dto.serviceOrder.ServiceOrderUpdateRequest;
@@ -54,7 +55,7 @@ public class ServiceOrderService {
                 .orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado: " + req.clientId()));
 
         String orderNumber = String.format("OS-%d-%05d",
-                LocalDate.now().getYear(),
+                Datas.hoje().getYear(),
                 Math.abs(UUID.randomUUID().hashCode()) % 99999 + 1);
 
         ServiceOrder order = ServiceOrder.builder()

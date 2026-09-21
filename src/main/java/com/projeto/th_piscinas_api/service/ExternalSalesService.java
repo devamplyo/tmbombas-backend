@@ -1,6 +1,7 @@
 package com.projeto.th_piscinas_api.service;
 
 
+import com.projeto.th_piscinas_api.util.Datas;
 import com.projeto.th_piscinas_api.dto.externalSales.ExternalSalesReportResponse;
 import com.projeto.th_piscinas_api.dto.externalSales.ExternalSellerSummary;
 import com.projeto.th_piscinas_api.exception.InvalidDateException;
@@ -32,7 +33,7 @@ public class ExternalSalesService {
 
     @Transactional(readOnly = true)
     public ExternalSalesReportResponse externalSalesReport(LocalDate inicio, LocalDate fim) {
-        if (fim == null) fim = LocalDate.now();
+        if (fim == null) fim = Datas.hoje();
         if (inicio == null) inicio = fim.minusMonths(1);
         if (inicio.isAfter(fim)) {
             throw new InvalidDateException(
