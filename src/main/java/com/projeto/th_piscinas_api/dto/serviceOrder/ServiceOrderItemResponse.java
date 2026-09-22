@@ -6,6 +6,9 @@ public record ServiceOrderItemResponse(
         Long id,
         String name,
         String description,
-        BigDecimal value
+        BigDecimal value,
+        Long productId,
+        String productName,
+        Integer quantity
 ) {
 }

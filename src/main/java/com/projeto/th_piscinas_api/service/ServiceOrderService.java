@@ -10,18 +10,22 @@ import com.projeto.th_piscinas_api.exception.ProfileNotValidateException;
 import com.projeto.th_piscinas_api.dto.serviceOrder.ServiceOrderItemRequest;
 import com.projeto.th_piscinas_api.mapper.ServiceOrderMapper;
 import com.projeto.th_piscinas_api.model.Client;
+import com.projeto.th_piscinas_api.model.Product;
 import com.projeto.th_piscinas_api.model.ServiceOrder;
 import com.projeto.th_piscinas_api.model.ServiceOrderItem;
 import com.projeto.th_piscinas_api.model.User;
 import com.projeto.th_piscinas_api.repository.ClientRepository;
+import com.projeto.th_piscinas_api.repository.ProductRepository;
 import com.projeto.th_piscinas_api.repository.ServiceOrderRepository;
 import com.projeto.th_piscinas_api.repository.UserRepository;
 import com.projeto.th_piscinas_api.util.Perfil;
 import com.projeto.th_piscinas_api.util.ServiceOrderStatus;
 import com.projeto.th_piscinas_api.util.ServiceOrderType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,8 +41,10 @@ public class ServiceOrderService {
     private final ServiceOrderRepository serviceOrderRepository;
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final ServiceOrderMapper serviceOrderMapper;
     private final ReceivableService receivableService;
+    private final ServiceOrderStockService serviceOrderStockService;
 
 
     @Transactional(readOnly = true)
@@ -88,11 +94,19 @@ public class ServiceOrderService {
     private List<ServiceOrderItem> buildItems(ServiceOrder order, List<ServiceOrderItemRequest> requests) {
         List<ServiceOrderItem> items = new ArrayList<>();
         for (ServiceOrderItemRequest r : requests) {
+            Product product = null;
+            if (r.productId() != null) {
+                product = productRepository.findById(r.productId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Produto não encontrado: " + r.productId()));
+            }
             items.add(ServiceOrderItem.builder()
                     .serviceOrder(order)
                     .name(r.name())
                     .description(r.description())
                     .value(r.value())
+                    .product(product)
+                    .quantity(r.quantity())
                     .build());
         }
         return items;
@@ -117,12 +131,19 @@ public class ServiceOrderService {
         if (req.price() != null && order.getItems().isEmpty()) order.setPrice(req.price());
         if (req.technicianId() != null) order.setTechnician(searchTechnician(req.technicianId()));
 
+        boolean wasCompleted = order.getStatus() == ServiceOrderStatus.CONCLUIDA;
+
         if (req.status() != null) {
             order.setStatus(req.status());
             // automatically marks the completion date
             if (req.status() == ServiceOrderStatus.CONCLUIDA && order.getCompletedAt() == null) {
                 order.setCompletedAt(LocalDateTime.now());
             }
+        }
+
+        // deducts stock for material items only on the transition into CONCLUIDA
+        if (req.status() == ServiceOrderStatus.CONCLUIDA && !wasCompleted) {
+            serviceOrderStockService.deductForCompletion(order);
         }
 
         ServiceOrder savedOrder = serviceOrderRepository.save(order);
