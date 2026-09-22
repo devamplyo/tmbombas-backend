@@ -16,7 +16,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @Service
@@ -68,6 +70,10 @@ public class AuthService {
         String matricula = refreshTokenService.validateAndConsume(refreshId); // rotation
         User user = userRepository.findByMatricula(matricula)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+        if (!user.isEnabled()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário inativo");
+        }
 
         String jwt = jwtService.gerarToken(user);
         String sessionId = accessSessionService.create(jwt);

@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ThPiscinasApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ThPiscinasApiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ThPiscinasApiApplication.class, args);
+    }
 
 }

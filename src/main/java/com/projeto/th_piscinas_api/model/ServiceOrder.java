@@ -20,7 +20,6 @@ import java.util.List;
 @Builder
 public class ServiceOrder {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

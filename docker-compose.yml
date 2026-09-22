@@ -41,7 +41,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DATABASE_URL: jdbc:postgresql://th_piscinas_database:5432/th_piscinas_database
-      DATABASE_USER: ${DATABASE_USER}        # ← corrigido
+      DATABASE_USER: ${DATABASE_USER}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       ADMIN_NOME: ${ADMIN_NOME}
       ADMIN_MATRICULA: ${ADMIN_MATRICULA}
