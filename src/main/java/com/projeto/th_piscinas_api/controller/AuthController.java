@@ -21,14 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 
-/**
- * achado (pedido explícito: tirar a credencial do localStorage): o token de
- * acesso e o refresh token não trafegam mais no corpo JSON nem ficam
- * guardados no navegador de um jeito legível por JavaScript — só saem daqui
- * como cookies httpOnly com ids opacos (`sid`/`rid`). O valor de verdade
- * (o JWT) fica só no Redis, na VPS — ver AccessSessionService e
- * RefreshTokenService. Mesmo um XSS no front não conseguiria ler o token.
- */
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -44,7 +37,6 @@ public class AuthController {
     @Value("${app.jwt.refresh-expiration-days}")
     private long refreshDays;
 
-    /** false só no profile dev (HTTP puro em localhost) — ver application.yaml. */
     @Value("${app.cookie.secure:true}")
     private boolean cookieSecure;
 

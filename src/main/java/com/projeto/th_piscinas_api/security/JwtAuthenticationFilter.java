@@ -62,6 +62,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
 
+                if (!user.isEnabled()) {
+                    accessSessionService.revoke(sessionId);
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 if (jwtService.tokenValido(token, user)) {
                     var authToken = new UsernamePasswordAuthenticationToken(
                             user, null, user.getAuthorities());

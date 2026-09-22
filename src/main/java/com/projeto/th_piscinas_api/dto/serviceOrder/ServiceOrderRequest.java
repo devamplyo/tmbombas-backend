@@ -10,7 +10,7 @@ import java.util.List;
 
 public record ServiceOrderRequest(
         @NotNull Long clientId,
-        Long technicianId,
+        @NotNull Long technicianId,
         @NotBlank String title,
         String description,
         LocalDateTime scheduledDate,

@@ -19,21 +19,20 @@ public class RefreshTokenService {
     @Value("${app.jwt.refresh-expiration-days}")
     private long refreshDays;
 
-    /** Creates an opaque refresh token and stores it in Redis pointing to the registration number. */
     public String createTokenRefresh(String matricula) {
         String token = UUID.randomUUID().toString();
         redis.opsForValue().set(key(token), matricula, Duration.ofDays(refreshDays));
         return token;
     }
 
-    /** Validates and CONSUMES it (single-use): if it exists, returns the registration number and deletes it. */
+
     public String validateAndConsume(String refreshToken) {
-        String matricula = redis.opsForValue().get(key(refreshToken));
+        String matricula = refreshToken == null ? null
+                : redis.opsForValue().getAndDelete(key(refreshToken));
         if (matricula == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Refresh token inválido ou expirado");
         }
-        redis.delete(key(refreshToken));   // rotation: can't be reused
         return matricula;
     }
 
