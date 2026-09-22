@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.projeto</groupId>
 	<artifactId>th-piscinas-api</artifactId>
-	<version>1.0.11</version>
+	<version>1.0.12</version>
 	<name>th-piscinas-api</name>
 	<description>TH Piscinas / TH Bombas API</description>
 	<properties>
