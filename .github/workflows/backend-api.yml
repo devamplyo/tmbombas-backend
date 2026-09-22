@@ -29,6 +29,9 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
+      - name: Grant execute permission to mvnw
+        run: chmod +x mvnw     
+
       - name: Resolve version
         id: set_version
         run: |
@@ -46,7 +49,7 @@ jobs:
       - name: Docker login
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build & push image

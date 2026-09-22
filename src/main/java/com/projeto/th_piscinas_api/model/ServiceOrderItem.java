@@ -32,4 +32,12 @@ public class ServiceOrderItem {
 
     @Column(name = "item_value", nullable = false, precision = 12, scale = 2)
     private BigDecimal value;
+
+    /** Stock product this item uses, when it represents material (not just labor). Optional. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    /** How many units of the product this item used. Only meaningful alongside `product`. */
+    private Integer quantity;
 }

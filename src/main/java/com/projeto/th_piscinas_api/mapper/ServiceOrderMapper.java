@@ -1,7 +1,9 @@
 package com.projeto.th_piscinas_api.mapper;
 
+import com.projeto.th_piscinas_api.dto.serviceOrder.ServiceOrderItemResponse;
 import com.projeto.th_piscinas_api.dto.serviceOrder.ServiceOrderResponse;
 import com.projeto.th_piscinas_api.model.ServiceOrder;
+import com.projeto.th_piscinas_api.model.ServiceOrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -15,5 +17,8 @@ public interface ServiceOrderMapper {
     @Mapping(target = "technicianName", source = "technician.nome") // User usa 'nome'
     ServiceOrderResponse toResponse(ServiceOrder order);
 
-    
+    @Mapping(target = "productId",   source = "product.id")
+    @Mapping(target = "productName", source = "product.name")
+    ServiceOrderItemResponse toItemResponse(ServiceOrderItem item);
+
 }

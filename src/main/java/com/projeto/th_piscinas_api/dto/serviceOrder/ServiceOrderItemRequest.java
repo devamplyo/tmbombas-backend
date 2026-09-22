@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 public record ServiceOrderItemRequest(
         @NotBlank String name,
         String description,
-        @NotNull BigDecimal value
+        @NotNull BigDecimal value,
+        Long productId,
+        Integer quantity
 ) {
 }
