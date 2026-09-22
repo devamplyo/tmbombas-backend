@@ -33,6 +33,10 @@ public record ProductRequest(
         @Pattern(regexp = "^\\d{8}$", message = "NCM deve ter 8 dígitos") String ncm,
         @Pattern(regexp = "^\\d{4}$", message = "CFOP deve ter 4 dígitos") String cfop,
         @Min(0) @Max(8) Integer origin,
-        @Pattern(regexp = "^\\d{3}$", message = "CSOSN deve ter 3 dígitos") String csosn
+        // Lista fechada (Tabela B do Convênio s/nº): um código de 3 dígitos fora dela passava
+        // no cadastro e só era recusado pela Focus na hora de emitir, no meio de uma venda.
+        @Pattern(regexp = "^(101|102|103|201|202|203|300|400|500|900)$",
+                message = "CSOSN inválido. Use 101, 102, 103, 201, 202, 203, 300, 400, 500 ou 900")
+        String csosn
 ) {
 }
