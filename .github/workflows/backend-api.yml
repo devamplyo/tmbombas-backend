@@ -29,6 +29,9 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
+      - name: Grant execute permission to mvnw
+        run: chmod +x mvnw     
+
       - name: Resolve version
         id: set_version
         run: |
