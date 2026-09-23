@@ -14,8 +14,7 @@ public interface SaleMapper {
 
     SaleResponse toSaleResponse(Sale sale);
 
-    @Mapping(target = "productId",   source = "product.id")
-    @Mapping(target = "productName", source = "product.name")
+    @Mapping(target = "productId", source = "product.id")
     SaleItemResponse toItemResponse(SaleItem item);
 
     CancelSaleResponse toCancelSaleResponse(Sale sale);

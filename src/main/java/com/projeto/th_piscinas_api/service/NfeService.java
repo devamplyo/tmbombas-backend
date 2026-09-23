@@ -202,7 +202,7 @@ public class NfeService {
         BigDecimal bruto = unit.multiply(BigDecimal.valueOf(si.getQuantity())).setScale(2, RoundingMode.HALF_UP);
         String un = prod.getUnit() == null || prod.getUnit().isBlank() ? "UN" : prod.getUnit().trim().toUpperCase();
         if (un.length() > 6) un = un.substring(0, 6);
-        String nome = prod.getName() == null ? "Produto" : prod.getName();
+        String nome = si.getProductName() == null ? "Produto" : si.getProductName();
         if (nome.length() > 120) nome = nome.substring(0, 120);
 
         Map<String, Object> it = new LinkedHashMap<>();
@@ -439,7 +439,7 @@ public class NfeService {
     String simuladoHtml(Invoice inv) {
         StringBuilder itens = new StringBuilder();
         saleRepository.findById(inv.getSaleId() == null ? -1L : inv.getSaleId()).ifPresent(sale ->
-                sale.getItems().forEach(i -> itens.append("<tr><td>").append(esc(i.getProduct().getName()))
+                sale.getItems().forEach(i -> itens.append("<tr><td>").append(esc(i.getProductName()))
                         .append("</td><td>").append(i.getQuantity()).append("</td><td>")
                         .append(money(i.getUnitPrice())).append("</td></tr>")));
         return "<!doctype html><html lang=\"pt-BR\"><meta charset=\"utf-8\"><title>NF-e (simulação)</title>"

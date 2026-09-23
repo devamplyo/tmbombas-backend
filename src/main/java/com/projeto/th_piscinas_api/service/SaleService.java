@@ -89,6 +89,7 @@ public class SaleService {
 
             sale.addItem(SaleItem.builder()
                     .product(product)
+                    .productName(product.getName())   // snapshot at sale time
                     .quantity(itemReq.quantity())
                     .unitPrice(unitPrice)   // snapshot at sale time
                     .subtotal(subtotal)

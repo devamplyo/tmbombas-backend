@@ -67,7 +67,7 @@ public class InvoiceViewMapper {
     }
 
     private InvoiceItemResponse item(SaleItem i) {
-        String nome = i.getProduct() == null ? "Produto" : i.getProduct().getName();
+        String nome = i.getProductName() == null ? "Produto" : i.getProductName();
         BigDecimal sub = i.getSubtotal() != null ? i.getSubtotal()
                 : i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()));
         return new InvoiceItemResponse(nome, i.getQuantity(), i.getUnitPrice(), sub);

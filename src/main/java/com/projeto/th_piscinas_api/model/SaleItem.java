@@ -26,6 +26,10 @@ public class SaleItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    /** Product name AT THE TIME of the sale (snapshot). Doesn't change if the product is renamed later. */
+    @Column(nullable = false)
+    private String productName;
+
     @Column(nullable = false)
     private Integer quantity;
 
