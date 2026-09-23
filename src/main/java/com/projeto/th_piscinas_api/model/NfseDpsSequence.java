@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * numero_dps counter per (cnpj, serie) — Focus doesn't generate this number,
+ * numero_dps counter per (cnpj, serie, ambiente) — Focus doesn't generate this number,
  * the issuer provides it, and a repeated number is rejected by the city.
  */
 @Entity
@@ -25,6 +25,10 @@ public class NfseDpsSequence {
 
     @Column(nullable = false)
     private Integer serie;
+
+    /** HOMOLOGACAO or PRODUCAO — each environment counts on its own. */
+    @Column(nullable = false, length = 20)
+    private String ambiente;
 
     @Column(name = "ultimo_numero", nullable = false)
     private Long ultimoNumero;

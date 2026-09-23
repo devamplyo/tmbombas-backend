@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 /**
- * Allocates sequential numero_dps per (cnpj, serie). Focus doesn't generate
+ * Allocates sequential numero_dps per (cnpj, serie, ambiente). Focus doesn't generate
  * this number — the issuer provides it, and a repeated number is rejected by
  * the city. Gaps in the numbering (from rejected invoices) are normal.
  */
@@ -19,15 +19,27 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DpsNumberAllocator {
 
+    public static final String HOMOLOGACAO = "HOMOLOGACAO";
+    public static final String PRODUCAO = "PRODUCAO";
+
+    // homologação starts high because low numbers were already used in earlier tests;
+    // real production starts at 100
+    private static final long PRIMEIRO_NUMERO_HOMOLOGACAO = 1000;
+    private static final long PRIMEIRO_NUMERO_PRODUCAO = 100;
+
     private final NfseDpsSequenceRepository repository;
+
+    private static long primeiroNumero(String ambiente) {
+        return PRODUCAO.equals(ambiente) ? PRIMEIRO_NUMERO_PRODUCAO : PRIMEIRO_NUMERO_HOMOLOGACAO;
+    }
 
     /**
      * {@code REQUIRES_NEW} is essential: the number is confirmed and persisted
      * even if the issuance that consumes it fails afterwards — never reused.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public long next(String cnpj, int serie) {
-        Optional<NfseDpsSequence> existente = repository.findByCnpjAndSerieForUpdate(cnpj, serie);
+    public long next(String cnpj, int serie, String ambiente) {
+        Optional<NfseDpsSequence> existente = repository.findByCnpjAndSerieAndAmbienteForUpdate(cnpj, serie, ambiente);
         NfseDpsSequence seq;
         if (existente.isPresent()) {
             seq = existente.get();
@@ -41,10 +53,11 @@ public class DpsNumberAllocator {
                 seq = repository.saveAndFlush(NfseDpsSequence.builder()
                         .cnpj(cnpj)
                         .serie(serie)
-                        .ultimoNumero(0L)
+                        .ambiente(ambiente)
+                        .ultimoNumero(primeiroNumero(ambiente) - 1)
                         .build());
             } catch (DataIntegrityViolationException e) {
-                seq = repository.findByCnpjAndSerieForUpdate(cnpj, serie)
+                seq = repository.findByCnpjAndSerieAndAmbienteForUpdate(cnpj, serie, ambiente)
                         .orElseThrow(() -> e);
             }
         }
@@ -57,9 +70,9 @@ public class DpsNumberAllocator {
 
     /** Peeks at the next number without consuming it — used by preview/dry-run. */
     @Transactional(readOnly = true)
-    public long peekNext(String cnpj, int serie) {
-        return repository.findByCnpjAndSerie(cnpj, serie)
+    public long peekNext(String cnpj, int serie, String ambiente) {
+        return repository.findByCnpjAndSerieAndAmbiente(cnpj, serie, ambiente)
                 .map(s -> s.getUltimoNumero() + 1)
-                .orElse(1L);
+                .orElse(primeiroNumero(ambiente));
     }
 }

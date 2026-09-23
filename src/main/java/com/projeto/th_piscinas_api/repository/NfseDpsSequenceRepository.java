@@ -11,9 +11,9 @@ import java.util.Optional;
 public interface NfseDpsSequenceRepository extends JpaRepository<NfseDpsSequence, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT s FROM NfseDpsSequence s WHERE s.cnpj = :cnpj AND s.serie = :serie")
-    Optional<NfseDpsSequence> findByCnpjAndSerieForUpdate(String cnpj, Integer serie);
+    @Query("SELECT s FROM NfseDpsSequence s WHERE s.cnpj = :cnpj AND s.serie = :serie AND s.ambiente = :ambiente")
+    Optional<NfseDpsSequence> findByCnpjAndSerieAndAmbienteForUpdate(String cnpj, Integer serie, String ambiente);
 
     /** Lock-free read, for peeking (dry-run/preview) — doesn't consume numbering. */
-    Optional<NfseDpsSequence> findByCnpjAndSerie(String cnpj, Integer serie);
+    Optional<NfseDpsSequence> findByCnpjAndSerieAndAmbiente(String cnpj, Integer serie, String ambiente);
 }

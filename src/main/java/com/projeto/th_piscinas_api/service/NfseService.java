@@ -129,7 +129,7 @@ public class NfseService {
         if (!props.isSimulate()) {
             String cnpj = digits(props.getCnpjPrestador());
             invoice.setSerieDps(props.getSerieDps());
-            invoice.setNumeroDps(dpsNumberAllocator.next(cnpj, props.getSerieDps()));
+            invoice.setNumeroDps(dpsNumberAllocator.next(cnpj, props.getSerieDps(), ambienteDps()));
             log.info("Delegando emissão de NFS-e à Focus - reference={} serie={} numero={}",
                     invoice.getReference(), invoice.getSerieDps(), invoice.getNumeroDps());
             emitReal(invoice);
@@ -164,8 +164,13 @@ public class NfseService {
                 .build();
 
         String cnpj = digits(props.getCnpjPrestador());
-        long proximoNumero = dpsNumberAllocator.peekNext(cnpj, props.getSerieDps());
+        long proximoNumero = dpsNumberAllocator.peekNext(cnpj, props.getSerieDps(), ambienteDps());
         return focusClient.buildPayload(fake, props.getSerieDps(), proximoNumero);
+    }
+
+    private String ambienteDps() {
+        return "producao".equalsIgnoreCase(props.getAmbiente())
+                ? DpsNumberAllocator.PRODUCAO : DpsNumberAllocator.HOMOLOGACAO;
     }
 
     @Transactional
