@@ -8,4 +8,5 @@ import java.util.List;
 public interface ServiceTaskRepository extends JpaRepository<ServiceTask, Long> {
     List<ServiceTask> findAllByOrderByScheduledDateDesc();
     List<ServiceTask> findByTechnicianIdOrderByScheduledDateDesc(Long technicianId);
+    boolean existsByServiceOrderIdAndTechnicianId(Long serviceOrderId, Long technicianId);
 }
