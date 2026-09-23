@@ -100,11 +100,15 @@ public class ServiceOrderService {
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Produto não encontrado: " + r.productId()));
             }
+            // material do estoque: o valor é sempre preço do produto x quantidade, nunca o que veio digitado
+            BigDecimal value = (product != null && r.quantity() != null)
+                    ? product.getPrice().multiply(BigDecimal.valueOf(r.quantity()))
+                    : r.value();
             items.add(ServiceOrderItem.builder()
                     .serviceOrder(order)
                     .name(r.name())
                     .description(r.description())
-                    .value(r.value())
+                    .value(value)
                     .product(product)
                     .quantity(r.quantity())
                     .build());
