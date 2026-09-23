@@ -134,5 +134,17 @@ public class ClientService {
         return clientMapper.toResponse(clientRepository.save(client));
     }
 
+    /** Deactivates or reactivates an approved client. Nothing is deleted: the history stays. */
+    @Transactional
+    public ClientResponse setClientActive(Long id, boolean active) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new ClientNotFoundException("Cliente não encontrado: " + id));
+
+        if (client.getStatus() != ClientStatus.APROVADO) {
+            throw new ConflictException("Só cliente aprovado pode ser ativado ou desativado.");
+        }
+        client.setActive(active);
+        return clientMapper.toResponse(clientRepository.save(client));
+    }
 
 }

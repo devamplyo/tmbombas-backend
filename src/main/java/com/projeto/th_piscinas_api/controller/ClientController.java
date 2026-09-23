@@ -65,6 +65,18 @@ public class ClientController {
 
     }
 
+    @PostMapping("/{id}/deactivate")
+    @PreAuthorize("hasRole('ADM_MASTER')")
+    public ResponseEntity<ClientResponse> deactivateClient(@PathVariable Long id) {
+        return ResponseEntity.ok(clientService.setClientActive(id, false));
+    }
+
+    @PostMapping("/{id}/activate")
+    @PreAuthorize("hasRole('ADM_MASTER')")
+    public ResponseEntity<ClientResponse> activateClient(@PathVariable Long id) {
+        return ResponseEntity.ok(clientService.setClientActive(id, true));
+    }
+
     @GetMapping("/pending")
     @PreAuthorize("hasRole('ADM_MASTER')")
     public ResponseEntity<List<ClientResponse>> pendingClient() {
