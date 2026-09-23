@@ -210,7 +210,7 @@ public class NfeService {
         it.put("codigo_produto", prod.getCode());
         it.put("descricao", nome);
         it.put("codigo_ncm", firstNonBlank(prod.getNcm(), nfe.getNcmPadrao()));
-        it.put("cfop", firstNonBlank(prod.getCfop(), interna ? nfe.getCfopPadrao() : nfe.getCfopInterestadualPadrao()));
+        it.put("cfop", resolveCfop(prod.getCfop(), interna));
         it.put("unidade_comercial", un);
         it.put("quantidade_comercial", si.getQuantity());
         it.put("valor_unitario_comercial", unit);
@@ -231,6 +231,20 @@ public class NfeService {
         it.put("cofins_aliquota_porcentual", 0);
         it.put("cofins_valor", 0);
         return it;
+    }
+
+    /**
+     * CFOP: o produto guarda só a "natureza da operação" (últimos 3 dígitos, ex.: venda de
+     * mercadoria); o primeiro dígito (5 = mesmo estado, 6 = outro estado) depende do cliente
+     * de CADA venda, então é sempre recalculado aqui — nunca usa o CFOP do produto cru, senão
+     * a nota sai com "operação interna" pra cliente de fora do estado (e a SEFAZ recusa).
+     */
+    private String resolveCfop(String cfopProduto, boolean interna) {
+        String prefixo = interna ? "5" : "6";
+        if (cfopProduto != null && cfopProduto.trim().length() == 4) {
+            return prefixo + cfopProduto.trim().substring(1);
+        }
+        return interna ? nfe.getCfopPadrao() : nfe.getCfopInterestadualPadrao();
     }
 
     /** Payment method → Focus code (tPag). */
