@@ -101,7 +101,7 @@ public class ExternalOrderService {
                 .map(i -> new SaleItemRequest(i.getProduct().getId(), i.getQuantity(), i.getUnitPrice()))
                 .toList();
         SaleRequest saleReq = new SaleRequest(
-                order.getCustomerName(), null, null, null, saleItems);
+                order.getCustomerName(), null, null, null, null, saleItems);
 
         User seller = order.getSellerId() != null
                 ? userRepository.findById(order.getSellerId()).orElse(null) : null;

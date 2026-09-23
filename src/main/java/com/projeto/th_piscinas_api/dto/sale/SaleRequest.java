@@ -13,6 +13,8 @@ public record SaleRequest(
 
         @JsonProperty("customer_name")
         String customerName,
+        @JsonProperty("client_id")
+        Long clientId,
         PaymentType paymentType,
         PaymentMethod paymentMethod,
         LocalDate dueDate,

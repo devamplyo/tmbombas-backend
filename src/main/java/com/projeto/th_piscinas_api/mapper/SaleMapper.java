@@ -12,6 +12,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SaleMapper {
 
+    @Mapping(target = "clientId",   source = "client.id")
+    @Mapping(target = "clientName", source = "client.name")
     SaleResponse toSaleResponse(Sale sale);
 
     @Mapping(target = "productId", source = "product.id")

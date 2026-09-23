@@ -25,6 +25,11 @@ public class Sale {
 
     private String customerName;
 
+    /** Registered client this sale is linked to, when the seller picked one at checkout. Optional. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
     /** Who recorded the sale (registration number/id of the logged-in salesperson). */
     private Long sellerId;
 

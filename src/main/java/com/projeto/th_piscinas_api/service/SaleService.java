@@ -5,10 +5,12 @@ import com.projeto.th_piscinas_api.exception.AuthorizationPermissionException;
 import com.projeto.th_piscinas_api.exception.SaleCancelException;
 import com.projeto.th_piscinas_api.exception.SaleNotFoundException;
 import com.projeto.th_piscinas_api.mapper.SaleMapper;
+import com.projeto.th_piscinas_api.model.Client;
 import com.projeto.th_piscinas_api.model.Product;
 import com.projeto.th_piscinas_api.model.Sale;
 import com.projeto.th_piscinas_api.model.SaleItem;
 import com.projeto.th_piscinas_api.model.User;
+import com.projeto.th_piscinas_api.repository.ClientRepository;
 import com.projeto.th_piscinas_api.repository.ProductRepository;
 import com.projeto.th_piscinas_api.repository.SaleRepository;
 import com.projeto.th_piscinas_api.repository.UserRepository;
@@ -33,6 +35,7 @@ public class SaleService {
 
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository;
+    private final ClientRepository clientRepository;
     private final ReceivableService receivableService;
     private final SaleMapper saleMapper;
     private final UserRepository userRepository;
@@ -58,8 +61,21 @@ public class SaleService {
 
     @Transactional
     public SaleResponse createSale(SaleRequest req, User seller) {
+        Client client = null;
+        if (req.clientId() != null) {
+            client = clientRepository.findById(req.clientId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Cliente não encontrado: " + req.clientId()));
+        }
+
+        // cliente escolhido preenche o nome se o vendedor não digitou nada
+        String customerName = req.customerName() != null && !req.customerName().isBlank()
+                ? req.customerName()
+                : (client != null ? client.getName() : null);
+
         Sale sale = Sale.builder()
-                .customerName(req.customerName())
+                .customerName(customerName)
+                .client(client)
                 .sellerId(seller != null ? seller.getId() : null)
                 .sellerName(seller != null ? seller.getNome() : null)
                 .paymentMethod(req.paymentMethod())
